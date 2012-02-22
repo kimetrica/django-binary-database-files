@@ -18,7 +18,7 @@ Installation
 
     $ sudo python setup.py install
     
-    Or via pip with:
+Or via pip with:
     
     $ sudo pip install https://github.com/chrisspen/django-database-files/zipball/master
 
