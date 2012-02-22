@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import FileField, ImageField
+from django.db.models import FileField, ImageField, get_models
 
 from optparse import make_option
 
@@ -18,7 +18,6 @@ class Command(BaseCommand):
         settings.DEBUG = False
         try:
             broken = 0 # Number of db records referencing missing files.
-            from django.db.models import get_models
             for model in get_models():
                for field in model._meta.fields:
                     if not isinstance(field, (FileField, ImageField)):
