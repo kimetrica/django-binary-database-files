@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import FileField, ImageField
 
 from database_files.models import File
+from database_files.utils import write_file
 
 from optparse import make_option
 
@@ -29,14 +30,10 @@ class Command(BaseCommand):
             for file in q:
                 i += 1
                 print '%i of %i' % (i, total)
-                fqfn = os.path.join(settings.MEDIA_ROOT, file.name)
-                fqfn = os.path.normpath(fqfn)
-                if os.path.isfile(fqfn) and not options['overwrite']:
-                    continue
-                dirs,fn = os.path.split(fqfn)
-                if not os.path.isdir(dirs):
-                    os.makedirs(dirs)
-                open(fqfn, 'wb').write(file.content)
+                write_file(
+                    file.name,
+                    file.content.read(),
+                    options['overwrite'])
         finally:
             settings.DEBUG = tmp_debug
             

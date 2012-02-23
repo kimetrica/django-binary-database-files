@@ -5,8 +5,6 @@ from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import FileField, ImageField, get_models
 
-from optparse import make_option
-
 class Command(BaseCommand):
     args = ''
     help = 'Loads all files on the filesystem referenced by FileFields ' + \

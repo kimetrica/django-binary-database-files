@@ -47,6 +47,13 @@ system, run:
 
     $ python manage.py database_files_dump
 
+Note, that when a field referencing a file is cleared, the corresponding file
+in the database and on the file system will not be automatically deleted.
+To delete all files in the database and file system not referenced by any model
+fields, run:
+
+    $ python manage.py database_files_cleanup
+
 Test suite
 ----------
 
