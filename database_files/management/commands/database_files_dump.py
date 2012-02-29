@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 print '%i of %i' % (i, total)
                 write_file(
                     file.name,
-                    file.content.read(),
+                    file.content,
                     options['overwrite'])
         finally:
             settings.DEBUG = tmp_debug
