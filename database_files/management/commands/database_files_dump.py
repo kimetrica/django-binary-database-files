@@ -29,7 +29,8 @@ class Command(BaseCommand):
             i = 0
             for file in q:
                 i += 1
-                print '%i of %i' % (i, total)
+                if not i % 100:
+                    print '%i of %i' % (i, total)
                 write_file(
                     file.name,
                     file.content,
