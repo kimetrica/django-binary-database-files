@@ -15,7 +15,10 @@ class DatabaseFilesTestCase(TestCase):
         
         # Create default thing storing reference to file
         # in the local media directory.
-        fqfn = os.path.join(DIR,'media/i/special/test.txt')
+        media_dir = os.path.join(DIR,'media/i/special')
+        if not os.path.isdir(media_dir):
+            os.makedirs(media_dir)
+        fqfn = os.path.join(media_dir,'test.txt')
         open(fqfn,'w').write('hello there')
         o = Thing()
         o.upload = 'i/special/test.txt'

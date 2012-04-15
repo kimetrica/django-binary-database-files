@@ -1,7 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from distutils.core import setup
+import os
+from distutils.core import setup, Command
 import database_files
+
+class TestCommand(Command):
+    description = "Runs unittests."
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        os.system('django-admin.py test --pythonpath=. --settings=database_files.tests.settings tests')
+
 setup(
     name='django-database-files',
     version=database_files.__version__,
@@ -23,4 +35,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
     ],
+    cmdclass={
+        'test': TestCommand,
+    },
 )

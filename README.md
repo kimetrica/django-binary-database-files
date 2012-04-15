@@ -16,11 +16,15 @@ Requires:
 Installation
 ------------
 
-    $ sudo python setup.py install
+    sudo python setup.py install
     
 Or via pip with:
     
-    $ sudo pip install https://github.com/chrisspen/django-database-files/zipball/master
+    sudo pip install https://github.com/chrisspen/django-database-files/zipball/master
+
+You can run unittests with:
+
+    python setup.py test
 
 Usage
 -----
@@ -53,8 +57,3 @@ To delete all files in the database and file system not referenced by any model
 fields, run:
 
     $ python manage.py database_files_cleanup
-
-Test suite
-----------
-
-    $ ./run_tests.sh
