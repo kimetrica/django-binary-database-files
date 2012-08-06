@@ -4,6 +4,16 @@ import os
 from distutils.core import setup, Command
 import database_files
 
+def get_reqs(reqs=[]):
+    # optparse is included with Python <= 2.7, but has been deprecated in favor
+    # of argparse.  We try to import argparse and if we can't, then we'll add
+    # it to the requirements
+    try:
+        import argparse
+    except ImportError:
+        reqs.append("argparse>=1.1")
+    return reqs
+
 class TestCommand(Command):
     description = "Runs unittests."
     user_options = []
@@ -35,6 +45,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
     ],
+    requires = ["Django (>=1.4)",],
     cmdclass={
         'test': TestCommand,
     },

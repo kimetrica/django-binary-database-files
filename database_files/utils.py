@@ -1,8 +1,23 @@
 #from grp import getgrnam
 #from pwd import getpwnam
 import os
+import hashlib
 
 from django.conf import settings
+
+def is_fresh(name, content_hash):
+    """
+    Returns true if the file exists on the local filesystem and matches the
+    content in the database. Returns false otherwise.
+    """
+    if not content_hash:
+        return False
+    fqfn = os.path.join(settings.MEDIA_ROOT, name)
+    fqfn = os.path.normpath(fqfn)
+    if not os.path.isfile(fqfn):
+        return False
+    local_content_hash = get_file_hash(fqfn)
+    return local_content_hash == content_hash
 
 def write_file(name, content, overwrite=False):
     """
@@ -29,3 +44,28 @@ def write_file(name, content, overwrite=False):
     perms = getattr(settings, 'DATABASE_FILES_PERMS', None)
     if perms:
         os.system('chmod -R %s "%s"' % (perms, dirs))
+
+def get_file_hash(fin):
+    """
+    Iteratively builds a file hash without loading the entire file into memory.
+    """
+    if isinstance(fin, basestring):
+        fin = open(fin)
+    h = hashlib.sha512()
+    for text in fin.readlines():
+        if not isinstance(text, unicode):
+            text = unicode(text, encoding='utf-8', errors='replace')
+        h.update(text.encode('utf-8', 'replace'))
+    return h.hexdigest()
+
+def get_text_hash(text):
+    """
+    Returns the hash of the given text.
+    """
+    h = hashlib.sha512()
+    if not isinstance(text, unicode):
+        text = unicode(text, encoding='utf-8', errors='replace')
+    h.update(text.encode('utf-8', 'replace'))
+    return h.hexdigest()
+
+get_text_hash_0004 = get_text_hash
