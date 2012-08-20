@@ -58,6 +58,7 @@ class DatabaseStorage(FileSystemStorage):
             size = content.size
         except AttributeError:
             size = os.path.getsize(full_path)
+        content.seek(0)
         content = content.read()
         f = models.File.objects.create(
             content=content,

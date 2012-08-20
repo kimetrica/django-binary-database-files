@@ -1,4 +1,5 @@
 import os
+from optparse import make_option
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -11,11 +12,20 @@ class Command(BaseCommand):
     args = ''
     help = 'Deletes all files in the database that are not referenced by ' + \
         'any model fields.'
+    option_list = BaseCommand.option_list + (
+        make_option('--dryrun',
+            action='store_true',
+            dest='dryrun',
+            default=False,
+            help='If given, only displays the names of orphaned files ' + \
+                'and does not delete them.'),
+        )
 
     def handle(self, *args, **options):
         tmp_debug = settings.DEBUG
         settings.DEBUG = False
         names = set()
+        dryrun = options['dryrun']
         try:
             for model in get_models():
                for field in model._meta.fields:
@@ -33,8 +43,14 @@ class Command(BaseCommand):
                         names.add(file.name)
             # Find all database files with names not in our list.
             orphan_files = File.objects.exclude(name__in=names)
+            total_bytes = 0
             for f in orphan_files:
-                print 'Deleting %s...' % (f.name,)
-                default_storage.delete(f.name)
+                total_bytes += f.size
+                if dryrun:
+                    print 'File %s is orphaned.' % (f.name,)
+                else:
+                    print 'Deleting orphan file %s...' % (f.name,)
+                    default_storage.delete(f.name)
+            print '%i total bytes in orphan files.' % total_bytes
         finally:
             settings.DEBUG = tmp_debug
