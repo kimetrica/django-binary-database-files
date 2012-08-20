@@ -7,6 +7,7 @@ from django.core.files.storage import default_storage
 
 from database_files.models import File
 from database_files.tests.models import Thing
+from database_files import utils
 
 DIR = os.path.abspath(os.path.split(__file__)[0])
 
@@ -71,6 +72,18 @@ class DatabaseFilesTestCase(TestCase):
         default_storage.delete('i/special/test.txt')
         self.assertEqual(default_storage.exists('i/special/test.txt'), False)
         self.assertEqual(os.path.isfile(fqfn), False)
+
+    def test_hash(self):
+        media_dir = os.path.join(DIR,'media/i/special')
+        if not os.path.isdir(media_dir):
+            os.makedirs(media_dir)
+        fqfn = os.path.join(media_dir,'test.txt')
+        open(fqfn,'wb').write('hello\nmany things are here\nand then this')
+        f_hash = utils.get_file_hash(fqfn)
+        t_hash = utils.get_text_hash(open(fqfn, 'rb').read())
+        print f_hash
+        print t_hash
+        self.assertEqual(f_hash, t_hash)
 
 class DatabaseFilesViewTestCase(TestCase):
     fixtures = ['test_data.json']
