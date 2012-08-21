@@ -5,6 +5,10 @@ import hashlib
 
 from django.conf import settings
 
+DEFAULT_ENFORCE_ENCODING = getattr(settings, 'DB_FILES_DEFAULT_ENFORCE_ENCODING', True)
+DEFAULT_ENCODING = getattr(settings, 'DB_FILES_DEFAULT_ENCODING', 'ascii')
+DEFAULT_ERROR_METHOD = getattr(settings, 'DB_FILES_DEFAULT_ERROR_METHOD', 'ignore')
+
 def is_fresh(name, content_hash):
     """
     Returns true if the file exists on the local filesystem and matches the
@@ -45,20 +49,42 @@ def write_file(name, content, overwrite=False):
     if perms:
         os.system('chmod -R %s "%s"' % (perms, dirs))
 
-def get_file_hash(fin):
+#def get_file_hash(fin):
+#    """
+#    Iteratively builds a file hash without loading the entire file into memory.
+#    """
+#    if isinstance(fin, basestring):
+#        fin = open(fin)
+#    h = hashlib.sha512()
+#    for text in fin.readlines():
+#        if not isinstance(text, unicode):
+#            text = unicode(text, encoding='utf-8', errors='replace')
+#        h.update(text.encode('utf-8', 'replace'))
+#    return h.hexdigest()
+
+def get_file_hash(fin,
+    force_encoding=DEFAULT_ENFORCE_ENCODING,
+    encoding=DEFAULT_ENCODING,
+    errors=DEFAULT_ERROR_METHOD):
     """
     Iteratively builds a file hash without loading the entire file into memory.
     """
     if isinstance(fin, basestring):
-        fin = open(fin)
+        fin = open(fin, 'r')
     h = hashlib.sha512()
-    for text in fin.readlines():
-        if not isinstance(text, unicode):
-            text = unicode(text, encoding='utf-8', errors='replace')
-        h.update(text.encode('utf-8', 'replace'))
+    while 1:
+        text = fin.read(1000)
+        if not text:
+            break
+        if force_encoding:
+            if not isinstance(text, unicode):
+                text = unicode(text, encoding=encoding, errors=errors)
+            h.update(text.encode(encoding, errors))
+        else:
+            h.update(text)
     return h.hexdigest()
 
-def get_text_hash(text):
+def get_text_hash_0004(text):
     """
     Returns the hash of the given text.
     """
@@ -68,4 +94,18 @@ def get_text_hash(text):
     h.update(text.encode('utf-8', 'replace'))
     return h.hexdigest()
 
-get_text_hash_0004 = get_text_hash
+def get_text_hash(text,
+    force_encoding=DEFAULT_ENFORCE_ENCODING,
+    encoding=DEFAULT_ENCODING,
+    errors=DEFAULT_ERROR_METHOD):
+    """
+    Returns the hash of the given text.
+    """
+    h = hashlib.sha512()
+    if force_encoding:
+        if not isinstance(text, unicode):
+            text = unicode(text, encoding=encoding, errors=errors)
+        h.update(text.encode(encoding, errors))
+    else:
+        h.update(text)
+    return h.hexdigest()
