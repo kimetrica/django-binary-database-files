@@ -20,7 +20,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         tmp_debug = settings.DEBUG
         settings.DEBUG = False
-        dryrun = options['dryrun']
         try:
             q = File.objects.all()
             total = q.count()
