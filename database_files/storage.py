@@ -7,7 +7,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse
 
 from database_files import models
-from database_files.utils import write_file
+from database_files import utils
 
 class DatabaseStorage(FileSystemStorage):
     
@@ -67,7 +67,7 @@ class DatabaseStorage(FileSystemStorage):
         )
         # Automatically write the change to the local file system.
         if getattr(settings, 'DATABASE_FILES_FS_AUTO_WRITE', True):
-            write_file(name, content, overwrite=True)
+            utils.write_file(name, content, overwrite=True)
         #TODO:add callback to handle custom save behavior?
         return self._generate_name(name, f.pk)
     
@@ -86,6 +86,9 @@ class DatabaseStorage(FileSystemStorage):
         """
         try:
             models.File.objects.get_from_name(name).delete()
+            hash_fn = utils.get_hash_fn(name)
+            if os.path.isfile(hash_fn):
+                os.remove(hash_fn)
         except models.File.DoesNotExist:
             pass
         return super(DatabaseStorage, self).delete(name)

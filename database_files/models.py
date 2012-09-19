@@ -1,9 +1,11 @@
 import base64
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 from database_files import utils
+from database_files.utils import write_file, is_fresh
 from database_files.manager import FileManager
 
 class File(models.Model):
@@ -62,3 +64,31 @@ class File(models.Model):
             self._content_hash = utils.get_text_hash(self.content)
         return self._content_hash
     
+    @classmethod
+    def dump_files(cls, debug=True, verbose=False):
+        if debug:
+            tmp_debug = settings.DEBUG
+            settings.DEBUG = False
+        try:
+            q = cls.objects.only('id', 'name', '_content_hash').values_list('id', 'name', '_content_hash')
+            total = q.count()
+            if verbose:
+                print 'Checking %i total files...' % (total,)
+            i = 0
+            for (file_id, name, content_hash) in q:
+                i += 1
+                if verbose and not i % 100:
+                    print '%i of %i' % (i, total)
+                if not is_fresh(name=name, content_hash=content_hash):
+                    if verbose:
+                        print 'File %i-%s is stale. Writing to local file system...' \
+                            % (file_id, name)
+                    file = File.objects.get(id=file_id)
+                    write_file(
+                        file.name,
+                        file.content,
+                        overwrite=True)
+        finally:
+            if debug:
+                settings.DEBUG = tmp_debug
+            

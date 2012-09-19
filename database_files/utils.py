@@ -8,6 +8,7 @@ from django.conf import settings
 DEFAULT_ENFORCE_ENCODING = getattr(settings, 'DB_FILES_DEFAULT_ENFORCE_ENCODING', True)
 DEFAULT_ENCODING = getattr(settings, 'DB_FILES_DEFAULT_ENCODING', 'ascii')
 DEFAULT_ERROR_METHOD = getattr(settings, 'DB_FILES_DEFAULT_ERROR_METHOD', 'ignore')
+DEFAULT_HASH_FN_TEMPLATE = getattr(settings, 'DB_FILES_DEFAULT_HASH_FN_TEMPLATE', '%s.hash')
 
 def is_fresh(name, content_hash):
     """
@@ -16,12 +17,33 @@ def is_fresh(name, content_hash):
     """
     if not content_hash:
         return False
+    
+    # Check for cached hash file.
+    hash_fn = get_hash_fn(name)
+    if os.path.isfile(hash_fn):
+        return open(hash_fn).read().strip() == content_hash
+    
+    # Otherwise, calculate the hash of the local file.
     fqfn = os.path.join(settings.MEDIA_ROOT, name)
     fqfn = os.path.normpath(fqfn)
     if not os.path.isfile(fqfn):
         return False
     local_content_hash = get_file_hash(fqfn)
     return local_content_hash == content_hash
+
+def get_hash_fn(name):
+    """
+    Returns the filename for the hash file.
+    """
+    fqfn = os.path.join(settings.MEDIA_ROOT, name)
+    fqfn = os.path.normpath(fqfn)
+    dirs,fn = os.path.split(fqfn)
+    if not os.path.isdir(dirs):
+        os.makedirs(dirs)
+    fqfn_parts = os.path.split(fqfn)
+    hash_fn = os.path.join(fqfn_parts[0],
+        DEFAULT_HASH_FN_TEMPLATE % fqfn_parts[1])
+    return hash_fn
 
 def write_file(name, content, overwrite=False):
     """
@@ -35,6 +57,11 @@ def write_file(name, content, overwrite=False):
     if not os.path.isdir(dirs):
         os.makedirs(dirs)
     open(fqfn, 'wb').write(content)
+    
+    # Cache hash.
+    hash = get_file_hash(fqfn)
+    hash_fn = get_hash_fn(name)
+    open(hash_fn, 'wb').write(hash)
     
     # Set ownership and permissions.
     uname = getattr(settings, 'DATABASE_FILES_USER', None)

@@ -13,6 +13,7 @@ from database_files import utils
 DIR = os.path.abspath(os.path.split(__file__)[0])
 
 class DatabaseFilesTestCase(TestCase):
+    
     def test_adding_file(self):
         
         # Create default thing storing reference to file
@@ -67,6 +68,8 @@ class DatabaseFilesTestCase(TestCase):
         t.upload.delete()
         self.assertEqual(File.objects.count(), 1)
         
+        File.dump_files()
+        
         # Confirm when delete a file from the database, we also delete it from
         # the filesystem.
         self.assertEqual(default_storage.exists('i/special/test.txt'), True)
@@ -75,6 +78,7 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(os.path.isfile(fqfn), False)
 
     def test_hash(self):
+        verbose = 0
         
         # Create test file.
         media_dir = os.path.join(DIR, 'media/i/special')
@@ -86,14 +90,18 @@ class DatabaseFilesTestCase(TestCase):
         
         hashes = set()
         h = utils.get_text_hash(image_content)
-        hashes.add(h); print h
+        hashes.add(h)
+        if verbose: print h
         h = utils.get_file_hash(fqfn)
-        hashes.add(h); print h
+        hashes.add(h)
+        if verbose: print h
         h = utils.get_text_hash(open(fqfn, 'rb').read())
-        hashes.add(h); print h
+        hashes.add(h)
+        if verbose: print h
         h = utils.get_text_hash(open(fqfn, 'r').read())
-        hashes.add(h); print h
-        print 'Hashes:', len(hashes)
+        hashes.add(h)
+        if verbose: print h
+        #print 'Hashes:', len(hashes)
         
         # Create test file.
         self.assertEqual(len(hashes), 1)
@@ -103,14 +111,18 @@ class DatabaseFilesTestCase(TestCase):
         
         hashes = set()
         h = utils.get_text_hash(image_content)
-        hashes.add(h); print h
+        hashes.add(h)
+        if verbose: print h
         h = utils.get_file_hash(fqfn)
-        hashes.add(h); print h
+        hashes.add(h)
+        if verbose: print h
         h = utils.get_text_hash(open(fqfn, 'rb').read())
-        hashes.add(h); print h
+        hashes.add(h)
+        if verbose: print h
         h = utils.get_text_hash(open(fqfn, 'r').read())
-        hashes.add(h); print h
-        print 'Hashes:', len(hashes)
+        hashes.add(h)
+        if verbose: print h
+        #print 'Hashes:', len(hashes)
         
         self.assertEqual(len(hashes), 1)
 
