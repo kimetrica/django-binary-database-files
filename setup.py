@@ -23,7 +23,7 @@ class TestCommand(Command):
         pass
     def run(self):
         os.system('django-admin.py test --pythonpath=. --settings=database_files.tests.settings tests')
-        #os.system('django-admin.py test --pythonpath=. --settings=database_files.tests.settings tests.DatabaseFilesTestCase.test_hash')
+        #os.system('django-admin.py test --pythonpath=. --settings=database_files.tests.settings tests.DatabaseFilesTestCase.test_adding_file')
 
 setup(
     name='django-database-files',

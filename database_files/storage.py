@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 from database_files import models
 from database_files import utils
 
+AUTO_EXPORT_DB_TO_FS = getattr(settings, 'DB_FILES_AUTO_EXPORT_DB_TO_FS', True)
+
 class DatabaseStorage(FileSystemStorage):
     
     def _generate_name(self, name, pk):
@@ -29,6 +31,15 @@ class DatabaseStorage(FileSystemStorage):
             f = models.File.objects.get_from_name(name)
             content = f.content
             size = f.size
+            if AUTO_EXPORT_DB_TO_FS \
+            and not utils.is_fresh(f.name, f.content_hash):
+                # Automatically write the file to the filesystem
+                # if it's missing and exists in the database.
+                # This happens if we're using multiple web servers connected
+                # to a common databaes behind a load balancer.
+                # One user might upload a file from one web server, and then
+                # another might access if from another server.
+                utils.write_file(f.name, f.content)
         except models.File.DoesNotExist:
             # If not yet in the database, check the local file system
             # and load it into the database if present.

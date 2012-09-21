@@ -18,6 +18,12 @@ def is_fresh(name, content_hash):
     if not content_hash:
         return False
     
+    # Check that the actual file exists.
+    fqfn = os.path.join(settings.MEDIA_ROOT, name)
+    fqfn = os.path.normpath(fqfn)
+    if not os.path.isfile(fqfn):
+        return False
+    
     # Check for cached hash file.
     hash_fn = get_hash_fn(name)
     if os.path.isfile(hash_fn):

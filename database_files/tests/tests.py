@@ -21,10 +21,11 @@ class DatabaseFilesTestCase(TestCase):
         media_dir = os.path.join(DIR,'media/i/special')
         if not os.path.isdir(media_dir):
             os.makedirs(media_dir)
-        fqfn = os.path.join(media_dir,'test.txt')
-        open(fqfn,'w').write('hello there')
-        o = Thing()
-        o.upload = 'i/special/test.txt'
+        test_fqfn = os.path.join(media_dir,'test.txt')
+        open(test_fqfn,'w').write('hello there')
+        o1 = o = Thing()
+        test_fn = 'i/special/test.txt'
+        o.upload = test_fn
         o.save()
         id = o.id
         
@@ -32,7 +33,7 @@ class DatabaseFilesTestCase(TestCase):
         Thing.objects.update()
         q = Thing.objects.all()
         self.assertEqual(q.count(), 1)
-        self.assertEqual(q[0].upload.name, 'i/special/test.txt')
+        self.assertEqual(q[0].upload.name, test_fn)
         
         # Confirm the file only exists on the file system
         # and hasn't been loaded into the database.
@@ -68,6 +69,14 @@ class DatabaseFilesTestCase(TestCase):
         t.upload.delete()
         self.assertEqual(File.objects.count(), 1)
         
+        # Delete file from local filesystem and re-export it from the database.
+        self.assertEqual(os.path.isfile(test_fqfn), True)
+        os.remove(test_fqfn)
+        self.assertEqual(os.path.isfile(test_fqfn), False)
+        o1.upload.read() # This forces the re-export to the filesystem.
+        self.assertEqual(os.path.isfile(test_fqfn), True)
+        
+        # This dumps all files to the filesystem.
         File.dump_files()
         
         # Confirm when delete a file from the database, we also delete it from
@@ -75,7 +84,7 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(default_storage.exists('i/special/test.txt'), True)
         default_storage.delete('i/special/test.txt')
         self.assertEqual(default_storage.exists('i/special/test.txt'), False)
-        self.assertEqual(os.path.isfile(fqfn), False)
+        self.assertEqual(os.path.isfile(test_fqfn), False)
 
     def test_hash(self):
         verbose = 0
