@@ -6,8 +6,9 @@ from django.core.management.base import BaseCommand, CommandError
 from database_files.models import File
 
 class Command(BaseCommand):
-    args = ''
-    help = 'Regenerates hashes for all files.'
+    args = '<filename 1> <filename 2> ... <filename N>'
+    help = 'Regenerates hashes for files. If no filenames given, ' + \
+        'rehashes everything.'
     option_list = BaseCommand.option_list + (
 #        make_option('--dryrun',
 #            action='store_true',
@@ -22,9 +23,11 @@ class Command(BaseCommand):
         settings.DEBUG = False
         try:
             q = File.objects.all()
+            if args:
+                q = q.filter(name__in=args)
             total = q.count()
             i = 1
-            for f in q:
+            for f in q.iterator():
                 print '%i of %i: %s' % (i, total, f.name)
                 f._content_hash = None
                 f.save()
