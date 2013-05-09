@@ -108,8 +108,7 @@ class DatabaseStorage(FileSystemStorage):
         """
         Returns the web-accessible URL for the file with filename `name`.
         """
-        return os.path.join(settings.MEDIA_URL, name)
-        #return reverse('database_file', kwargs={'name': name})
+        return settings.DATABASE_FILES_URL_METHOD(name)
     
     def size(self, name):
         """
