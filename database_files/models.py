@@ -10,6 +10,11 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+try:
+    from django.db.models import BinaryField
+except ImportError:
+    from binaryfield import BinaryField
+
 from database_files import utils
 from database_files.utils import write_file, is_fresh
 from database_files.manager import FileManager
@@ -30,7 +35,9 @@ class File(models.Model):
         blank=False,
         null=False)
 
-    _content = models.TextField(db_column='content')
+    content = BinaryField(
+        blank=False,
+        null=False)
     
     created_datetime = models.DateTimeField(
         db_index=True,
@@ -51,28 +58,17 @@ class File(models.Model):
         # Check for and clear old content hash.
         if self.id:
             old = File.objects.get(id=self.id)
-            if old._content != self._content:
+            if old.content != self.content:
                 self._content_hash = None
                 
         # Recalculate new content hash.
         self.content_hash
         
         return super(File, self).save(*args, **kwargs)
-    
-    @property
-    def content(self):
-        c = self._content
-        if not isinstance(c, six.binary_type):
-            c = c.encode('utf-8')
-        return base64.b64decode(c)
-    
-    @content.setter
-    def content(self, v):
-        self._content = base64.b64encode(v)
         
     @property
     def content_hash(self):
-        if not self._content_hash and self._content:
+        if not self._content_hash and self.content:
             self._content_hash = utils.get_text_hash(self.content)
         return self._content_hash
     

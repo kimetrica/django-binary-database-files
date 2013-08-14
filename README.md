@@ -5,12 +5,21 @@ This is a storage system for Django that stores uploaded
 files in the database. Files can be served from the database
 (usually a bad idea), the file system, or a CDN.
 
+WARNING: It is generally a bad idea to serve static files from Django, 
+but there are some valid use cases. If your Django app is behind a caching 
+reverse proxy and you need to scale your application servers, it may be 
+simpler to store files in the database.
+
+Requires:
+
+  * Django 1.6+ (or 1.4+ with django-binaryfield)
+
 Installation
 ------------
 
 Simply install via pip with:
     
-    pip install django-database-files-3000
+    pip install https://github.com/rhunwicks/django-database-files/zipball/binaryfield
 
 Usage
 -----

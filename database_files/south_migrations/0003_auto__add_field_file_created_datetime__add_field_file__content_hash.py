@@ -30,8 +30,8 @@ class Migration(SchemaMigration):
     models = {
         'database_files.file': {
             'Meta': {'object_name': 'File'},
-            '_content': ('django.db.models.fields.TextField', [], {'db_column': "'content'"}),
             '_content_hash': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'db_column': "'content_hash'", 'blank': 'True'}),
+            'content': ('django.db.models.fields.TextField', [], {}),
             'created_datetime': ('django.db.models.fields.DateTimeField', [], {'default': 'timezone.now', 'db_index': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
