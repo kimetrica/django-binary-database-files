@@ -20,7 +20,7 @@ class Migration(DataMigration):
     models = {
         'database_files.file': {
             'Meta': {'object_name': 'File'},
-            '_content': ('django.db.models.fields.TextField', [], {'db_column': "'content'"}),
+            'content': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
             'size': ('django.db.models.fields.PositiveIntegerField', [], {})

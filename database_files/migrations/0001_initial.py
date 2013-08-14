@@ -16,7 +16,7 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255, db_index=True)),
             ('size', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('_content', self.gf('django.db.models.fields.TextField')(db_column='content')),
+            ('content', self.gf('django.db.models.fields.BinaryField')()),
         ))
         db.send_create_signal('database_files', ['File'])
 
@@ -28,7 +28,7 @@ class Migration(SchemaMigration):
     models = {
         'database_files.file': {
             'Meta': {'object_name': 'File'},
-            '_content': ('django.db.models.fields.TextField', [], {'db_column': "'content'"}),
+            'content': ('django.db.models.fields.BinaryField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255', 'db_index': 'True'}),
             'size': ('django.db.models.fields.PositiveIntegerField', [], {})
