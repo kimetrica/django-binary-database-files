@@ -66,8 +66,23 @@ class File(models.Model):
             self._content_hash = utils.get_text_hash(self.content)
         return self._content_hash
     
+    def dump(self, check_hash=False):
+        """
+        Writes the file content to the filesystem.
+        """
+        write_file(
+            self.name,
+            self.content,
+            overwrite=True)
+        if check_hash:
+            self._content_hash = None
+        self.save()
+    
     @classmethod
     def dump_files(cls, debug=True, verbose=False):
+        """
+        Writes all files to the filesystem.
+        """
         if debug:
             tmp_debug = settings.DEBUG
             settings.DEBUG = False
