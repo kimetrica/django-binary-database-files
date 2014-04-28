@@ -69,7 +69,11 @@ class File(models.Model):
     def dump(self, check_hash=False):
         """
         Writes the file content to the filesystem.
+        
+        If check_hash is true, clears the stored file hash and recalculates.
         """
+        if is_fresh(self.name, self._content_hash):
+            return
         write_file(
             self.name,
             self.content,
