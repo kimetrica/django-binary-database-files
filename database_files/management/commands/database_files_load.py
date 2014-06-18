@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 
 from django.conf import settings
@@ -36,7 +38,8 @@ class Command(BaseCommand):
                 for field in model._meta.fields:
                     if not isinstance(field, (FileField, ImageField)):
                         continue
-                    print model.__name__, field.name
+                    if show_files:
+                        print(model.__name__, field.name)
                     # Ignore records with null or empty string values.
                     q = {'%s__isnull'%field.name:False}
                     xq = {field.name:''}
@@ -48,10 +51,10 @@ class Command(BaseCommand):
                             if not file.name:
                                 continue
                             if show_files:
-                                print "\t",file.name
+                                print("\t",file.name)
                             if file.path and not os.path.isfile(file.path):
                                 if show_files:
-                                    print "Broken:",file.name
+                                    print("Broken:",file.name)
                                 broken += 1
                                 continue
                             file.read()
@@ -59,7 +62,7 @@ class Command(BaseCommand):
                         except IOError:
                             broken += 1
             if show_files:
-                print '-'*80
-                print '%i broken' % (broken,)
+                print('-'*80)
+                print('%i broken' % (broken,))
         finally:
             settings.DEBUG = tmp_debug

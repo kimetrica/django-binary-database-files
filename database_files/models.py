@@ -1,6 +1,10 @@
+from __future__ import print_function
+
 import base64
 
-import settings as _settings
+import six
+
+from . import settings as _settings
 
 from django.conf import settings
 from django.db import models
@@ -57,7 +61,10 @@ class File(models.Model):
     
     @property
     def content(self):
-        return base64.b64decode(self._content)
+        c = self._content
+        if not isinstance(c, six.binary_type):
+            c = c.encode('utf-8')
+        return base64.b64decode(c)
     
     @content.setter
     def content(self, v):
@@ -94,19 +101,20 @@ class File(models.Model):
             tmp_debug = settings.DEBUG
             settings.DEBUG = False
         try:
-            q = cls.objects.only('id', 'name', '_content_hash').values_list('id', 'name', '_content_hash')
+            q = cls.objects.only('id', 'name', '_content_hash')\
+                .values_list('id', 'name', '_content_hash')
             total = q.count()
             if verbose:
-                print 'Checking %i total files...' % (total,)
+                print('Checking %i total files...' % (total,))
             i = 0
             for (file_id, name, content_hash) in q.iterator():
                 i += 1
                 if verbose and not i % 100:
-                    print '%i of %i' % (i, total)
+                    print('%i of %i' % (i, total))
                 if not is_fresh(name=name, content_hash=content_hash):
                     if verbose:
-                        print 'File %i-%s is stale. Writing to local file system...' \
-                            % (file_id, name)
+                        print(('File %i-%s is stale. Writing to local file '
+                            'system...') % (file_id, name))
                     file = File.objects.get(id=file_id)
                     write_file(
                         file.name,
