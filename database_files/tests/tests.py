@@ -135,6 +135,10 @@ class DatabaseFilesViewTestCase(TestCase):
     def test_reading_file(self):
         self.assertEqual(File.objects.count(), 1)
         response = self.client.get('/files/1.txt')
-        self.assertEqual(response.content, b'1234567890')
+        if hasattr(response, 'streaming_content'):
+            content = list(response.streaming_content)[0]
+        else:
+            content = response.content
+        self.assertEqual(content, b'1234567890')
         self.assertEqual(response['content-type'], 'text/plain')
         self.assertEqual(response['content-length'], '10')

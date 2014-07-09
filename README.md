@@ -1,31 +1,16 @@
-django-database-files
-=====================
+Django Database Files 3000
+==========================
 
-django-database-files is a storage system for Django that stores uploaded files
-in the database.
-
-WARNING: It is generally a bad idea to serve static files from Django, 
-but there are some valid use cases. If your Django app is behind a caching 
-reverse proxy and you need to scale your application servers, it may be 
-simpler to store files in the database.
+This is a storage system for Django that stores uploaded
+files in the database. Files can be served from the database
+(usually a bad idea), the file system, or a CDN.
 
 Installation
 ------------
 
-    python setup.py install
+Simply install via pip with:
     
-Or via pip with:
-    
-    pip install django-database-files
-
-You can run unittests with:
-
-    python setup.py test
-
-You can run unittests for a specific Python version using the `pv` parameter
-like:
-
-    python setup.py test --pv=3
+    pip install django-database-files-3000
 
 Usage
 -----
@@ -58,3 +43,37 @@ To delete all files in the database and file system not referenced by any model
 fields, run:
 
     python manage.py database_files_cleanup
+
+Settings
+-------
+
+* `DB_FILES_AUTO_EXPORT_DB_TO_FS` = `True`|`False` (default `True`)
+    
+    If true, when a file is uploaded or read from the database, a copy will be
+    exported to your media directory corresponding to the FileField's upload_to
+    path, just as it would with the default Django file storage.
+    
+    If false, the file will only exist in the database.
+
+* `DATABASE_FILES_URL_METHOD` = `URL_METHOD_1`|`URL_METHOD_1` (default `URL_METHOD_1`)
+    
+    Defines the method to use when rendering the web-accessible URL for a file.
+    
+    If `URL_METHOD_1`, assumes all files have been exported to the filesystem and
+    uses the path corresponding to your `settings.MEDIA_URL`.
+    
+    If `URL_METHOD_2`, uses the URL bound to the `database_file` view
+    to dynamically lookup and serve files from the filesystem or database.
+
+Development
+-----------
+
+You can run unittests with:
+
+    python setup.py test
+
+You can run unittests for a specific Python version using the `pv` parameter
+like:
+
+    python setup.py test --pv=3.2
+    

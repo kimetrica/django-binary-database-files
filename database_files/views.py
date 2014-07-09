@@ -1,6 +1,7 @@
 import base64
 import os
 
+from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
@@ -22,15 +23,16 @@ def serve(request, name):
     response['Content-Length'] = f.size
     return response
 
-def serve_mixed(request, path, document_root):
+def serve_mixed(request, name, document_root=None):
     """
     First attempts to serve the file from the filesystem,
     then tries the database.
     """
+    document_root = document_root or settings.MEDIA_ROOT
     try:
         # First attempt to serve from filesystem.
-        return django_serve(request, path, document_root)
+        return django_serve(request, name, document_root)
     except Http404:
         # Then try serving from database.
-        return serve(request, path)
+        return serve(request, name)
     
