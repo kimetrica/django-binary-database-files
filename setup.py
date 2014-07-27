@@ -8,7 +8,7 @@ import database_files
 try:
     from pypandoc import convert
     read_md = lambda f: convert(f, 'rst')
-except ImportError:
+except:
     print("Warning: pypandoc module not found, could not convert "
         "Markdown to RST")
     read_md = lambda f: open(f, 'r').read()
