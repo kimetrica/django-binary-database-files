@@ -94,7 +94,7 @@ class TestCommand(Command):
 
 try:
     long_description = read_md('README.md')
-except IOError:
+except:
     long_description = ''
 
 setup(
