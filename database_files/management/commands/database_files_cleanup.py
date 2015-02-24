@@ -21,6 +21,9 @@ class Command(BaseCommand):
             default=False,
             help='If given, only displays the names of orphaned files ' + \
                 'and does not delete them.'),
+        make_option('--filenames',
+            default='',
+            help='If given, only files with these names will be checked'),
         )
 
     def handle(self, *args, **options):
@@ -28,6 +31,11 @@ class Command(BaseCommand):
         settings.DEBUG = False
         names = set()
         dryrun = options['dryrun']
+        filenames = set([
+            _.strip()
+            for _ in options['filenames'].split(',')
+            if _.strip()
+        ])
         try:
             for model in get_models():
                 print('Checking model %s...' % (model,))
@@ -50,9 +58,13 @@ class Command(BaseCommand):
                         if not file.name:
                             continue
                         names.add(file.name)
+                            
             # Find all database files with names not in our list.
             print('Finding orphaned files...')
-            orphan_files = File.objects.exclude(name__in=names).only('name', 'size')
+            orphan_files = File.objects.exclude(name__in=names)
+            if filenames:
+                orphan_files = orphan_files.filter(name__in=filenames)
+            orphan_files = orphan_files.only('name', 'size')
             total_bytes = 0
             orphan_total = orphan_files.count()
             orphan_i = 0

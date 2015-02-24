@@ -90,7 +90,7 @@ class DatabaseStorage(FileSystemStorage):
         Returns true if a file with the given filename exists in the database.
         Returns false otherwise.
         """
-        if models.File.objects.filter(name=name).count() > 0:
+        if models.File.objects.filter(name=name).exists():
             return True
         return super(DatabaseStorage, self).exists(name)
     
