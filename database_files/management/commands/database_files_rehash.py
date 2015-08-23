@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from optparse import make_option
 
 from django.conf import settings
@@ -28,7 +30,7 @@ class Command(BaseCommand):
             total = q.count()
             i = 1
             for f in q.iterator():
-                print '%i of %i: %s' % (i, total, f.name)
+                print('%i of %i: %s' % (i, total, f.name))
                 f._content_hash = None
                 f.save()
                 i += 1

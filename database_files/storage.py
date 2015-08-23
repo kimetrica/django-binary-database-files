@@ -1,5 +1,8 @@
+from __future__ import print_function
 import os
-import StringIO
+
+import six
+from six import StringIO
 
 from django.conf import settings
 from django.core import files
@@ -8,8 +11,6 @@ from django.core.urlresolvers import reverse
 
 from database_files import models
 from database_files import utils
-
-AUTO_EXPORT_DB_TO_FS = getattr(settings, 'DB_FILES_AUTO_EXPORT_DB_TO_FS', True)
 
 class DatabaseStorage(FileSystemStorage):
     
@@ -31,7 +32,7 @@ class DatabaseStorage(FileSystemStorage):
             f = models.File.objects.get_from_name(name)
             content = f.content
             size = f.size
-            if AUTO_EXPORT_DB_TO_FS \
+            if settings.DB_FILES_AUTO_EXPORT_DB_TO_FS \
             and not utils.is_fresh(f.name, f.content_hash):
                 # Automatically write the file to the filesystem
                 # if it's missing and exists in the database.
@@ -45,6 +46,7 @@ class DatabaseStorage(FileSystemStorage):
             # and load it into the database if present.
             fqfn = self.path(name)
             if os.path.isfile(fqfn):
+                #print('Loading file into database.')
                 self._save(name, open(fqfn, mode))
                 fh = super(DatabaseStorage, self)._open(name, mode)
                 content = fh.read()
@@ -53,7 +55,8 @@ class DatabaseStorage(FileSystemStorage):
                 # Otherwise we don't know where the file is.
                 return
         # Normalize the content to a new file object.
-        fh = StringIO.StringIO(content)
+        #fh = StringIO(content)
+        fh = six.BytesIO(content)
         fh.name = name
         fh.mode = mode
         fh.size = size
@@ -77,7 +80,7 @@ class DatabaseStorage(FileSystemStorage):
             name=name,
         )
         # Automatically write the change to the local file system.
-        if getattr(settings, 'DATABASE_FILES_FS_AUTO_WRITE', True):
+        if settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
             utils.write_file(name, content, overwrite=True)
         #TODO:add callback to handle custom save behavior?
         return self._generate_name(name, f.pk)
@@ -87,7 +90,7 @@ class DatabaseStorage(FileSystemStorage):
         Returns true if a file with the given filename exists in the database.
         Returns false otherwise.
         """
-        if models.File.objects.filter(name=name).count() > 0:
+        if models.File.objects.filter(name=name).exists():
             return True
         return super(DatabaseStorage, self).exists(name)
     
