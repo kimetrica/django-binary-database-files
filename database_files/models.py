@@ -60,14 +60,6 @@ class File(models.Model):
         self.content_hash
         
         return super(File, self).save(*args, **kwargs)
-    
-    @property
-    def content(self):
-        return base64.b64decode(self._content)
-    
-    @content.setter
-    def content(self, v):
-        self._content = base64.b64encode(v)
         
     @property
     def content_hash(self):
@@ -75,6 +67,7 @@ class File(models.Model):
             self._content_hash = utils.get_text_hash(self.content)
         return self._content_hash
     
+    @classmethod
     def dump(self, check_hash=False):
         """
         Writes the file content to the filesystem.
