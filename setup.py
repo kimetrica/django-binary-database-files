@@ -110,6 +110,7 @@ setup(
         'database_files.management',
         'database_files.management.commands',
         'database_files.migrations',
+        'database_files.south_migrations',
     ],
     #https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
