@@ -72,7 +72,6 @@ class File(models.Model):
             self._content_hash = utils.get_text_hash(self.content)
         return self._content_hash
     
-    @classmethod
     def dump(self, check_hash=False):
         """
         Writes the file content to the filesystem.
