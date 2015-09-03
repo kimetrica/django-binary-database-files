@@ -48,6 +48,9 @@ class File(models.Model):
         max_length=128,
         blank=True, null=True)
     
+    class Meta:
+        db_table = 'database_files_file'
+    
     def save(self, *args, **kwargs):
         
         # Check for and clear old content hash.
