@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(unique=True, max_length=255, db_index=True)),
                 ('size', models.PositiveIntegerField(db_index=True)),
                 ('content', models.BinaryField()),
-                ('created_datetime', models.DateTimeField(default=django.utils.timezone.now, verbose_name=b'Created datetime', db_index=True)),
-                ('_content_hash', models.CharField(db_index=True, max_length=128, null=True, db_column=b'content_hash', blank=True)),
+                ('created_datetime', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Created datetime', db_index=True)),
+                ('_content_hash', models.CharField(db_index=True, max_length=128, null=True, db_column='content_hash', blank=True)),
             ],
             options={
                 'db_table': 'database_files_file',
