@@ -65,6 +65,16 @@ Settings
     If `URL_METHOD_2`, uses the URL bound to the `database_file` view
     to dynamically lookup and serve files from the filesystem or database.
 
+    In this case, you will also need to updates your `urls.py` to include the view
+    that serves the files:
+
+        urlpatterns = patterns('',
+            # ... the rest of your URLconf goes here ...
+
+            # Serve Database Files directly
+            url(r'', include('database_files.urls')),
+        )
+ 
 Development
 -----------
 
