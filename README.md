@@ -5,9 +5,9 @@ This is a storage system for Django that stores uploaded
 files in the database. Files can be served from the database
 (usually a bad idea), the file system, or a CDN.
 
-WARNING: It is generally a bad idea to serve static files from Django, 
-but there are some valid use cases. If your Django app is behind a caching 
-reverse proxy and you need to scale your application servers, it may be 
+WARNING: It is generally a bad idea to serve static files from Django,
+but there are some valid use cases. If your Django app is behind a caching
+reverse proxy and you need to scale your application servers, it may be
 simpler to store files in the database.
 
 Requires:
@@ -18,7 +18,7 @@ Installation
 ------------
 
 Simply install via pip with:
-    
+
     pip install https://github.com/rhunwicks/django-database-files/zipball/binaryfield
 
 Usage
@@ -40,7 +40,7 @@ load them into the database.
 If for any reason you want to re-run this bulk import task, run:
 
     python manage.py database_files_load
-    
+
 Additionally, if you want to export all files in the database back to the file
 system, run:
 
@@ -57,20 +57,20 @@ Settings
 -------
 
 * `DB_FILES_AUTO_EXPORT_DB_TO_FS` = `True`|`False` (default `True`)
-    
+
     If true, when a file is uploaded or read from the database, a copy will be
     exported to your media directory corresponding to the FileField's upload_to
     path, just as it would with the default Django file storage.
-    
+
     If false, the file will only exist in the database.
 
 * `DATABASE_FILES_URL_METHOD` = `URL_METHOD_1`|`URL_METHOD_1` (default `URL_METHOD_1`)
-    
+
     Defines the method to use when rendering the web-accessible URL for a file.
-    
+
     If `URL_METHOD_1`, assumes all files have been exported to the filesystem and
     uses the path corresponding to your `settings.MEDIA_URL`.
-    
+
     If `URL_METHOD_2`, uses the URL bound to the `database_file` view
     to dynamically lookup and serve files from the filesystem or database.
 
@@ -83,7 +83,12 @@ Settings
             # Serve Database Files directly
             url(r'', include('database_files.urls')),
         )
- 
+
+* `DATABASE_FILES_BASE_URL`
+
+    Allows the `url` method of the storage backend to return an absolute URL if provided.
+
+
 Development
 -----------
 
@@ -95,4 +100,3 @@ You can run unittests for a specific Python version using the `pv` parameter
 like:
 
     python setup.py test --pv=3.2
-    
