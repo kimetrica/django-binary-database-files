@@ -52,12 +52,12 @@ class Command(BaseCommand):
                         subq_i += 1
                         if subq_i == 1 or not subq_i % 100:
                             print('%i of %i' % (subq_i, subq_total))
-                        file = getattr(row, field.name)
-                        if file is None:
+                        f = getattr(row, field.name)
+                        if f is None:
                             continue
-                        if not file.name:
+                        if not f.name:
                             continue
-                        names.add(file.name)
+                        names.add(f.name)
                             
             # Find all database files with names not in our list.
             print('Finding orphaned files...')
