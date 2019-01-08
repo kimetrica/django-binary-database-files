@@ -1,7 +1,7 @@
 
 from django.urls import re_path
     
-import database_files.views
+from database_files import views
 
 
 urlpatterns = [
