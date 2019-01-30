@@ -1,13 +1,12 @@
 from __future__ import print_function
 
 import os
+from optparse import make_option
 
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import FileField, ImageField, get_models
-
-from optparse import make_option
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -31,7 +30,7 @@ class Command(BaseCommand):
         try:
             broken = 0 # Number of db records referencing missing files.
             for model in get_models():
-                key = "%s.%s" % (model._meta.app_label,model._meta.module_name)
+                key = "%s.%s" % (model._meta.app_label, model._meta.module_name)
                 key = key.lower()
                 if all_models and key not in all_models:
                     continue
@@ -45,19 +44,19 @@ class Command(BaseCommand):
                     xq = {field.name:''}
                     for row in model.objects.filter(**q).exclude(**xq):
                         try:
-                            file = getattr(row, field.name)
-                            if file is None:
+                            f = getattr(row, field.name)
+                            if f is None:
                                 continue
-                            if not file.name:
+                            if not f.name:
                                 continue
                             if show_files:
-                                print("\t",file.name)
-                            if file.path and not os.path.isfile(file.path):
+                                print("\t", f.name)
+                            if f.path and not os.path.isfile(f.path):
                                 if show_files:
-                                    print("Broken:",file.name)
+                                    print("Broken:", f.name)
                                 broken += 1
                                 continue
-                            file.read()
+                            f.read()
                             row.save()
                         except IOError:
                             broken += 1

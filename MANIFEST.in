@@ -1,0 +1,5 @@
+recursive-include database_files/tests/fixtures *
+recursive-include database_files/tests/media *
+include pip-requirements-min-django.txt
+include pip-requirements.txt
+include pip-requirements-test.txt

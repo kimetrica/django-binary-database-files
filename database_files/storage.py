@@ -7,10 +7,11 @@ from six import StringIO
 from django.conf import settings
 from django.core import files
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from database_files import models
 from database_files import utils
+from database_files import settings as _settings
 
 class DatabaseStorage(FileSystemStorage):
     
@@ -32,8 +33,7 @@ class DatabaseStorage(FileSystemStorage):
             f = models.File.objects.get_from_name(name)
             content = f.content
             size = f.size
-            if settings.DB_FILES_AUTO_EXPORT_DB_TO_FS \
-            and not utils.is_fresh(f.name, f.content_hash):
+            if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS and not utils.is_fresh(f.name, f.content_hash):
                 # Automatically write the file to the filesystem
                 # if it's missing and exists in the database.
                 # This happens if we're using multiple web servers connected
@@ -80,7 +80,7 @@ class DatabaseStorage(FileSystemStorage):
             name=name,
         )
         # Automatically write the change to the local file system.
-        if settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
+        if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
             utils.write_file(name, content, overwrite=True)
         #TODO:add callback to handle custom save behavior?
         return self._generate_name(name, f.pk)
@@ -111,7 +111,7 @@ class DatabaseStorage(FileSystemStorage):
         """
         Returns the web-accessible URL for the file with filename `name`.
         """
-        return settings.DATABASE_FILES_URL_METHOD(name)
+        return _settings.DATABASE_FILES_URL_METHOD(name)
     
     def size(self, name):
         """

@@ -1,16 +1,27 @@
 Django Database Files 3000
 ==========================
 
+[![](https://img.shields.io/pypi/v/django-database-files-3000.svg)](https://pypi.python.org/pypi/django-database-files-3000) [![Build Status](https://img.shields.io/travis/chrisspen/django-database-files-3000.svg?branch=master)](https://travis-ci.org/chrisspen/django-database-files-3000) [![](https://pyup.io/repos/github/chrisspen/django-database-files-3000/shield.svg)](https://pyup.io/repos/github/chrisspen/django-database-files-3000)
+
 This is a storage system for Django that stores uploaded
 files in the database. Files can be served from the database
 (usually a bad idea), the file system, or a CDN.
+
+WARNING: It is generally a bad idea to serve static files from Django, 
+but there are some valid use cases. If your Django app is behind a caching 
+reverse proxy and you need to scale your application servers, it may be 
+simpler to store files in the database.
+
+Requires:
+
+  * Django 1.6+ (or 1.4+ with django-binaryfield)
 
 Installation
 ------------
 
 Simply install via pip with:
     
-    pip install django-database-files-3000
+    pip install https://github.com/rhunwicks/django-database-files/zipball/binaryfield
 
 Usage
 -----
@@ -55,7 +66,7 @@ Settings
     
     If false, the file will only exist in the database.
 
-* `DATABASE_FILES_URL_METHOD` = `URL_METHOD_1`|`URL_METHOD_1` (default `URL_METHOD_1`)
+* `DATABASE_FILES_URL_METHOD` = `URL_METHOD_1`|`URL_METHOD_2` (default `URL_METHOD_1`)
     
     Defines the method to use when rendering the web-accessible URL for a file.
     
@@ -78,12 +89,29 @@ Settings
 Development
 -----------
 
-You can run unittests with:
+Tests require the Python development headers to be installed, which you can install on Ubuntu with:
 
-    python setup.py test
+    sudo apt-get install python-dev python3-dev python3.4-dev
 
-You can run unittests for a specific Python version using the `pv` parameter
-like:
+To run unittests across multiple Python versions, install:
 
-    python setup.py test --pv=3.2
+    sudo apt-get install python3.4-minimal python3.4-dev python3.5-minimal python3.5-dev
+
+Note, you may need to enable an [additional repository](https://launchpad.net/~fkrull/+archive/ubuntu/deadsnakes) to provide these packages.
+
+To run all [tests](http://tox.readthedocs.org/en/latest/):
+
+    export TESTNAME=; tox
+
+To run tests for a specific environment (e.g. Python 2.7 with Django 1.4):
     
+    export TESTNAME=; tox -e py27-django15
+
+To run a specific test:
+    
+    export TESTNAME=.test_adding_file; tox -e py27-django15
+
+To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.org/chrisspen/django-database-files), and then run:
+
+    python setup.py sdist
+    python setup.py sdist upload

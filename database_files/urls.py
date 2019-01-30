@@ -1,15 +1,14 @@
 
-try:
-    # Removed in Django 1.6
-    from django.conf.urls.defaults import patterns, url
-except ImportError:
-    from django.conf.urls import patterns, url
+from django.urls import re_path
+    
+from database_files import views
 
-urlpatterns = patterns('',
+
+urlpatterns = [
 #    url(r'^files/(?P<name>.+)$',
 #        'database_files.views.serve',
 #        name='database_file'),
-    url(r'^files/(?P<name>.+)$',
-        'database_files.views.serve_mixed',
+    re_path(r'^files/(?P<name>.+)$',
+        views.serve_mixed,
         name='database_file'),
-)
+]
