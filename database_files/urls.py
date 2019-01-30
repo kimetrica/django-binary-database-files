@@ -1,6 +1,6 @@
 
 from django.urls import re_path
-    
+
 from database_files import views
 
 

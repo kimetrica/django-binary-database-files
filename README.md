@@ -1,4 +1,4 @@
-Django Database Files 3000
+Django Binary Database Files
 ==========================
 
 [![](https://img.shields.io/pypi/v/django-database-files-3000.svg)](https://pypi.python.org/pypi/django-database-files-3000) [![Build Status](https://img.shields.io/travis/chrisspen/django-database-files-3000.svg?branch=master)](https://travis-ci.org/chrisspen/django-database-files-3000) [![](https://pyup.io/repos/github/chrisspen/django-database-files-3000/shield.svg)](https://pyup.io/repos/github/chrisspen/django-database-files-3000)
@@ -14,7 +14,7 @@ simpler to store files in the database.
 
 Requires:
 
-  * Django 1.6+ (or 1.4+ with django-binaryfield)
+  * Django 1.11+
 
 Installation
 ------------
@@ -96,25 +96,23 @@ Development
 
 Tests require the Python development headers to be installed, which you can install on Ubuntu with:
 
-    sudo apt-get install python-dev python3-dev python3.4-dev
+    sudo apt-get install python-dev python3-dev python3.6-dev
 
 To run unittests across multiple Python versions, install:
 
-    sudo apt-get install python3.4-minimal python3.4-dev python3.5-minimal python3.5-dev
-
-Note, you may need to enable an [additional repository](https://launchpad.net/~fkrull/+archive/ubuntu/deadsnakes) to provide these packages.
+    sudo apt-get install python3.5-minimal python3.5-dev python3.6-minimal python3.6-dev
 
 To run all [tests](http://tox.readthedocs.org/en/latest/):
 
     export TESTNAME=; tox
 
-To run tests for a specific environment (e.g. Python 2.7 with Django 1.4):
-    
-    export TESTNAME=; tox -e py27-django15
+To run tests for a specific environment (e.g. Python 2.7 with Django 1.11):
+
+    export TESTNAME=; tox -e py27-django111
 
 To run a specific test:
-    
-    export TESTNAME=.test_adding_file; tox -e py27-django15
+
+    export TESTNAME=.test_adding_file; tox -e py27-django111
 
 To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.org/chrisspen/django-database-files), and then run:
 

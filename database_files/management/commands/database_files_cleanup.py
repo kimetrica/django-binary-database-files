@@ -31,11 +31,11 @@ class Command(BaseCommand):
         settings.DEBUG = False
         names = set()
         dryrun = options['dryrun']
-        filenames = set([
+        filenames = {
             _.strip()
             for _ in options['filenames'].split(',')
             if _.strip()
-        ])
+        }
         try:
             for model in get_models():
                 print('Checking model %s...' % (model,))
@@ -58,7 +58,7 @@ class Command(BaseCommand):
                         if not f.name:
                             continue
                         names.add(f.name)
-                            
+
             # Find all database files with names not in our list.
             print('Finding orphaned files...')
             orphan_files = File.objects.exclude(name__in=names)

@@ -57,10 +57,11 @@ class DatabaseStorage(FileSystemStorage):
                 content = fh.read()
                 size = fh.size
             else:
-                # Otherwise we don't know where the file is.
-                return
+                # Otherwise we don't know where the file is so we return an
+                # empty file
+                size = 0
+                content = b''
         # Normalize the content to a new file object.
-        # fh = StringIO(content)
         fh = six.BytesIO(content)
         fh.name = name
         fh.mode = mode
