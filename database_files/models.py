@@ -4,8 +4,6 @@ import base64
 
 import six
 
-from . import settings as _settings
-
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -18,6 +16,8 @@ except ImportError:
 from database_files import utils
 from database_files.utils import write_file, is_fresh
 from database_files.manager import FileManager
+
+from . import settings as _settings
 
 class File(models.Model):
     
@@ -111,14 +111,13 @@ class File(models.Model):
                     if verbose:
                         print(('File %i-%s is stale. Writing to local file '
                             'system...') % (file_id, name))
-                    file = File.objects.get(id=file_id)
+                    f = File.objects.get(id=file_id)
                     write_file(
-                        file.name,
-                        file.content,
+                        f.name,
+                        f.content,
                         overwrite=True)
-                    file._content_hash = None
-                    file.save()
+                    f._content_hash = None
+                    f.save()
         finally:
             if debug:
                 settings.DEBUG = tmp_debug
-            

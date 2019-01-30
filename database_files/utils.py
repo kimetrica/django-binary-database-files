@@ -1,11 +1,11 @@
-#from grp import getgrnam
-#from pwd import getpwnam
+
 import os
 import hashlib
 
 import six
 
 from django.conf import settings
+from database_files import settings as _settings
 
 def is_fresh(name, content_hash):
     """
@@ -40,12 +40,11 @@ def get_hash_fn(name):
     """
     fqfn = os.path.join(settings.MEDIA_ROOT, name)
     fqfn = os.path.normpath(fqfn)
-    dirs,fn = os.path.split(fqfn)
+    dirs, fn = os.path.split(fqfn)
     if not os.path.isdir(dirs):
         os.makedirs(dirs)
     fqfn_parts = os.path.split(fqfn)
-    hash_fn = os.path.join(fqfn_parts[0],
-        settings.DB_FILES_DEFAULT_HASH_FN_TEMPLATE % fqfn_parts[1])
+    hash_fn = os.path.join(fqfn_parts[0], _settings.DB_FILES_DEFAULT_HASH_FN_TEMPLATE % fqfn_parts[1])
     return hash_fn
 
 def write_file(name, content, overwrite=False):
@@ -56,19 +55,19 @@ def write_file(name, content, overwrite=False):
     fqfn = os.path.normpath(fqfn)
     if os.path.isfile(fqfn) and not overwrite:
         return
-    dirs,fn = os.path.split(fqfn)
+    dirs, fn = os.path.split(fqfn)
     if not os.path.isdir(dirs):
         os.makedirs(dirs)
     open(fqfn, 'wb').write(content)
     
     # Cache hash.
-    hash = get_file_hash(fqfn)
+    hash_value = get_file_hash(fqfn)
     hash_fn = get_hash_fn(name)
     try:
         # Write out bytes in Python3.
-        value = six.binary_type(hash, 'utf-8')
+        value = six.binary_type(hash_value, 'utf-8')
     except TypeError:
-        value = hash
+        value = hash_value
     open(hash_fn, 'wb').write(value)
     
     # Set ownership and permissions.
@@ -84,14 +83,17 @@ def write_file(name, content, overwrite=False):
     if perms:
         os.system('chmod -R %s "%s"' % (perms, dirs))
 
-def get_file_hash(fin,
-    force_encoding=settings.DB_FILES_DEFAULT_ENFORCE_ENCODING,
-    encoding=settings.DB_FILES_DEFAULT_ENCODING,
-    errors=settings.DB_FILES_DEFAULT_ERROR_METHOD,
-    chunk_size=128):
+def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_size=128):
     """
     Iteratively builds a file hash without loading the entire file into memory.
     """
+    
+    force_encoding = force_encoding or _settings.DB_FILES_DEFAULT_ENFORCE_ENCODING
+    
+    encoding = encoding or _settings.DB_FILES_DEFAULT_ENCODING
+    
+    errors = errors or _settings.DB_FILES_DEFAULT_ERROR_METHOD
+    
     if isinstance(fin, six.string_types):
         fin = open(fin, 'rb')
     h = hashlib.sha512()
@@ -117,13 +119,17 @@ def get_text_hash_0004(text):
     h.update(text.encode('utf-8', 'replace'))
     return h.hexdigest()
 
-def get_text_hash(text,
-    force_encoding=settings.DB_FILES_DEFAULT_ENFORCE_ENCODING,
-    encoding=settings.DB_FILES_DEFAULT_ENCODING,
-    errors=settings.DB_FILES_DEFAULT_ERROR_METHOD):
+def get_text_hash(text, force_encoding=None, encoding=None, errors=None):
     """
     Returns the hash of the given text.
     """
+    
+    force_encoding = force_encoding or _settings.DB_FILES_DEFAULT_ENFORCE_ENCODING
+    
+    encoding = encoding or _settings.DB_FILES_DEFAULT_ENCODING
+    
+    errors = errors or _settings.DB_FILES_DEFAULT_ERROR_METHOD
+        
     h = hashlib.sha512()
     if force_encoding:
         if not isinstance(text, six.text_type):

@@ -11,6 +11,7 @@ from django.core.files.storage import FileSystemStorage
 
 from database_files import models
 from database_files import utils
+from database_files import settings as _settings
 
 
 class DatabaseStorage(FileSystemStorage):
@@ -37,7 +38,7 @@ class DatabaseStorage(FileSystemStorage):
             f = models.File.objects.get_from_name(name)
             content = f.content
             size = f.size
-            if settings.DB_FILES_AUTO_EXPORT_DB_TO_FS and not utils.is_fresh(f.name, f.content_hash):
+            if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS and not utils.is_fresh(f.name, f.content_hash):
                 # Automatically write the file to the filesystem
                 # if it's missing and exists in the database.
                 # This happens if we're using multiple web servers connected
@@ -82,7 +83,7 @@ class DatabaseStorage(FileSystemStorage):
             name=name,
         )
         # Automatically write the change to the local file system.
-        if settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
+        if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
             utils.write_file(name, content, overwrite=True)
         # @TODO: add callback to handle custom save behavior?
         return self._generate_name(name, f.pk)

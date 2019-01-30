@@ -1,13 +1,11 @@
-import os, sys
+import os
+import sys
 
 PROJECT_DIR = os.path.dirname(__file__)
 
 DATABASES = {
     'default':{
         'ENGINE': 'django.db.backends.sqlite3',
-        # Don't do this. It dramatically slows down the test.
-#        'NAME': '/tmp/database_files.db',
-#        'TEST_NAME': '/tmp/database_files.db',
     }
 }
 
@@ -20,16 +18,43 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'database_files',
     'database_files.tests',
-    'south',
 ]
 
 DEFAULT_FILE_STORAGE = 'database_files.storage.DatabaseStorage'
 
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 
-# Run our South migrations during unittesting.
-SOUTH_TESTS_MIGRATE = True
+# Disable migrations.
+# http://stackoverflow.com/a/28560805/247542
+class DisableMigrations(object):
+
+    def __contains__(self, item):
+        return True
+
+    def __getitem__(self, item):
+        return "notmigrations"
+SOUTH_TESTS_MIGRATE = False # <= Django 1.8
+# if django.VERSION > (1, 7, 0): # > Django 1.8 
+#     MIGRATION_MODULES = DisableMigrations()
 
 USE_TZ = True
 
 SECRET_KEY = 'secret'
+
+AUTH_USER_MODEL = 'auth.User'
+
+SITE_ID = 1
+
+BASE_SECURE_URL = 'https://localhost'
+
+BASE_URL = 'http://localhost'
+
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.transaction.TransactionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.locale.LocaleMiddleware',    
+)

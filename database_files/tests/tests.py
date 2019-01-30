@@ -8,6 +8,8 @@ from six import StringIO
 from django.core import files
 from django.test import TestCase
 from django.core.files.storage import default_storage
+from django.core.management import call_command
+from django.conf import settings
 
 from database_files.models import File
 from database_files.tests.models import Thing
@@ -28,12 +30,12 @@ class DatabaseFilesTestCase(TestCase):
         # Create default thing storing reference to file
         # in the local media directory.
         test_fqfn = os.path.join(self.media_dir, 'test.txt')
-        open(test_fqfn,'w').write('hello there')
+        open(test_fqfn, 'w').write('hello there')
         o1 = o = Thing()
         test_fn = 'i/special/test.txt'
         o.upload = test_fn
         o.save()
-        id = o.id
+        obj_id = o.id
         
         # Confirm thing was saved.
         Thing.objects.update()
@@ -47,7 +49,7 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(q.count(), 0)
         
         # Verify we can read the contents of thing.
-        o = Thing.objects.get(id=id)
+        o = Thing.objects.get(id=obj_id)
         self.assertEqual(o.upload.read(), b"hello there")
         
         # Verify that by attempting to read the file, we've automatically
@@ -60,9 +62,12 @@ class DatabaseFilesTestCase(TestCase):
         # Load a dynamically created file outside /media.
         test_file = files.temp.NamedTemporaryFile(
             suffix='.txt',
-            dir=files.temp.gettempdir()
+            # Django>=1.10 no longer allows accessing files outside of MEDIA_ROOT...
+            #dir=files.temp.gettempdir()
+            dir=os.path.join(settings.PROJECT_DIR, 'media'),
         )
-        test_file.write(b'1234567890')
+        data0 = b'1234567890'
+        test_file.write(data0)
         test_file.seek(0)
         t = Thing.objects.create(
             upload=files.File(test_file),
@@ -71,7 +76,7 @@ class DatabaseFilesTestCase(TestCase):
         t = Thing.objects.get(pk=t.pk)
         self.assertEqual(t.upload.file.size, 10)
         self.assertEqual(t.upload.file.name[-4:], '.txt')
-        self.assertEqual(t.upload.file.read(), b'1234567890')
+        self.assertEqual(t.upload.file.read(), data0)
         t.upload.delete()
         self.assertEqual(File.objects.count(), 1)
         
@@ -101,7 +106,7 @@ class DatabaseFilesTestCase(TestCase):
         open(fqfn, 'wb').write(image_content)
         
         # Calculate hash from various sources and confirm they all match.
-        expected_hash = '35830221efe45ab0dc3d91ca23c29d2d3c20d00c9afeaa096ab256ec322a7a0b3293f07a01377e31060e65b4e5f6f8fdb4c0e56bc586bba5a7ab3e6d6d97a192'
+        expected_hash = '35830221efe45ab0dc3d91ca23c29d2d3c20d00c9afeaa096ab256ec322a7a0b3293f07a01377e31060e65b4e5f6f8fdb4c0e56bc586bba5a7ab3e6d6d97a192' # pylint: disable=C0301
         h = utils.get_text_hash(image_content)
         self.assertEqual(h, expected_hash)
         h = utils.get_file_hash(fqfn)
@@ -119,20 +124,16 @@ class DatabaseFilesTestCase(TestCase):
         fqfn = os.path.join(self.media_dir, 'test.txt')
         open(fqfn, 'wb').write(image_content.encode('utf-8'))
         
-        expected_hash = '1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75'
+        expected_hash = '1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75' # pylint: disable=C0301
         h = utils.get_text_hash(image_content)
         self.assertEqual(h, expected_hash)
         h = utils.get_file_hash(fqfn)
         self.assertEqual(h, expected_hash)
         h = utils.get_text_hash(open(fqfn, 'rb').read())
         self.assertEqual(h, expected_hash)
-#        h = utils.get_text_hash(open(fqfn, 'r').read())
-#        self.assertEqual(h, expected_hash)
 
-class DatabaseFilesViewTestCase(TestCase):
-    fixtures = ['test_data.json']
-    
     def test_reading_file(self):
+        call_command('loaddata', 'test_files.json')
         self.assertEqual(File.objects.count(), 1)
         response = self.client.get('/files/1.txt')
         if hasattr(response, 'streaming_content'):

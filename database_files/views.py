@@ -1,4 +1,5 @@
 import base64
+import mimetypes
 import os
 
 from django.conf import settings
@@ -6,8 +7,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
 from django.views.static import serve as django_serve
-
-import mimetypes
 
 from database_files.models import File
 
