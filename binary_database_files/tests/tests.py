@@ -56,7 +56,7 @@ class DatabaseFilesTestCase(TestCase):
         File.objects.update()
         q = File.objects.all()
         self.assertEqual(q.count(), 1)
-        self.assertEqual(q.first().content.toString(), b"hello there")
+        self.assertEqual(q.first().content.getvalue(), b"hello there")
 
         # Load a dynamically created file outside /media.
         test_file = files.temp.NamedTemporaryFile(
