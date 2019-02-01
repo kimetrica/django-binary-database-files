@@ -8,10 +8,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-try:
-    from django.db.models import BinaryField
-except ImportError:
-    from binaryfield import BinaryField
+from django.db.models import BinaryField
 
 from binary_database_files import utils
 from binary_database_files.utils import write_file, is_fresh
