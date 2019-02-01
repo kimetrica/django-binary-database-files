@@ -1,10 +1,10 @@
 [
     {
         "pk": 1,
-        "model": "database_files.file",
+        "model": "binary_database_files.file",
         "fields": {
             "name": "1.txt",
-            "_content": "MTIzNDU2Nzg5MA==",
+            "content": "MTIzNDU2Nzg5MA==",
             "size": 10
         }
     }

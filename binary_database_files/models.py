@@ -62,7 +62,7 @@ class File(models.Model):
                 self._content_hash = None
 
         # Recalculate new content hash.
-        self.content_hash
+        self.content_hash()
 
         return super(File, self).save(*args, **kwargs)
 
