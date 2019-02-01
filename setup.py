@@ -23,15 +23,14 @@ except:
     long_description = ''
 
 setup(
-    name='django-database-files-3000',
+    name='django-binary-database-files',
     version=binary_database_files.__version__,
     description='A storage system for Django that stores uploaded files in both the database and file system.',
     long_description=long_description,
-    author='Chris Spencer',
-    author_email='chrisspen@gmail.com',
-    url='http://github.com/chrisspen/django-database-files-3000',
+    author='Johannes Wilm',
+    author_email='mail@johanneswilm.org',
+    url='http://github.com/johanneswilm/django-binary-database-files',
     packages=find_packages(),
-    #https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         'Development Status :: 6 - Mature',
         'Framework :: Django',
@@ -40,9 +39,10 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ],
     install_requires=get_reqs('pip-requirements-min-django.txt', 'pip-requirements.txt'),
     tests_require=get_reqs('pip-requirements-test.txt'),

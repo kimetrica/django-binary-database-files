@@ -1,10 +1,10 @@
 Django Binary Database Files
 ==========================
 
-[![](https://img.shields.io/pypi/v/django-database-files-3000.svg)](https://pypi.python.org/pypi/django-database-files-3000) [![Build Status](https://img.shields.io/travis/chrisspen/django-database-files-3000.svg?branch=master)](https://travis-ci.org/chrisspen/django-database-files-3000) [![](https://pyup.io/repos/github/chrisspen/django-database-files-3000/shield.svg)](https://pyup.io/repos/github/chrisspen/django-database-files-3000)
+[![](https://img.shields.io/pypi/v/django-database-files-3000.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://img.shields.io/travis/johanneswilm/django-binary-data-files.svg?branch=master)](https://travis-ci.org/johanneswilm/django-binary-database-files) [![](https://pyup.io/repos/github/johanneswilm/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/johanneswilm/django-binary-database-files)
 
 This is a storage system for Django that stores uploaded
-files in the database. Files can be served from the database
+files in binary fields in the database. Files can be served from the database
 (usually a bad idea), the file system, or a CDN.
 
 WARNING: It is generally a bad idea to serve static files from Django,
@@ -12,16 +12,18 @@ but there are some valid use cases. If your Django app is behind a caching
 reverse proxy and you need to scale your application servers, it may be
 simpler to store files in the database.
 
+Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/django-database-files), [rhunwicks](https://github.com/rhunwicks/django-database-files), [chrisspen](https://github.com/chrisspen/django-database-files-3000), [bfirsh](https://github.com/bfirsh/django-database-files) but updated to work with Django 1.11-2.1, Python 2/3 and to use a binary field for storage.
+
 Requires:
 
-  * Django 1.11+
+  * Django 1.11 - 2.1
 
 Installation
 ------------
 
 Simply install via pip with:
 
-    pip install https://github.com/rhunwicks/django-database-files/zipball/binaryfield
+    pip install https://api.github.com/repos/johanneswilm/django-binary-database-files/zipball/master
 
 Usage
 -----
