@@ -9,9 +9,9 @@ from django.conf import settings
 from django.core import files
 from django.core.files.storage import FileSystemStorage
 
-from database_files import models
-from database_files import utils
-from database_files import settings as _settings
+from binary_database_files import models
+from binary_database_files import utils
+from binary_database_files import settings as _settings
 
 
 class DatabaseStorage(FileSystemStorage):

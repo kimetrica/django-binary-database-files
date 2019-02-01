@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
 from django.views.static import serve as django_serve
 
-from database_files.models import File
+from binary_database_files.models import File
 
 @cache_control(max_age=86400)
 def serve(request, name):
@@ -36,4 +36,3 @@ def serve_mixed(request, *args, **kwargs):
     except Http404:
         # Then try serving from database.
         return serve(request, name)
-    

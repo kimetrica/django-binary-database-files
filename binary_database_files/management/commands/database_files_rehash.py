@@ -5,7 +5,7 @@ from optparse import make_option
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from database_files.models import File
+from binary_database_files.models import File
 
 class Command(BaseCommand):
     args = '<filename 1> <filename 2> ... <filename N>'

@@ -1,2 +1,2 @@
 #!/bin/bash
-pylint --rcfile=pylint.rc database_files
+pylint --rcfile=pylint.rc binary_database_files

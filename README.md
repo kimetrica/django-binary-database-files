@@ -26,10 +26,10 @@ Simply install via pip with:
 Usage
 -----
 
-In `settings.py`, add `database_files` to your `INSTALLED_APPS` and add
+In `settings.py`, add `binary_database_files` to your `INSTALLED_APPS` and add
 this line:
 
-    DEFAULT_FILE_STORAGE = 'database_files.storage.DatabaseStorage'
+    DEFAULT_FILE_STORAGE = 'binary_database_files.storage.DatabaseStorage'
 
 Note, the `upload_to` parameter is still used to synchronize the files stored
 in the database with those on the file system, so new and existing fields
@@ -41,19 +41,19 @@ load them into the database.
 
 If for any reason you want to re-run this bulk import task, run:
 
-    python manage.py database_files_load
+    python manage.py binary_database_files_load
 
 Additionally, if you want to export all files in the database back to the file
 system, run:
 
-    python manage.py database_files_dump
+    python manage.py binary_database_files_dump
 
 Note, that when a field referencing a file is cleared, the corresponding file
 in the database and on the file system will not be automatically deleted.
 To delete all files in the database and file system not referenced by any model
 fields, run:
 
-    python manage.py database_files_cleanup
+    python manage.py binary_database_files_cleanup
 
 Settings
 -------
@@ -83,7 +83,7 @@ Settings
             # ... the rest of your URLconf goes here ...
 
             # Serve Database Files directly
-            url(r'', include('database_files.urls')),
+            url(r'', include('binary_database_files.urls')),
         )
 
 * `DATABASE_FILES_BASE_URL`

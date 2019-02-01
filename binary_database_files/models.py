@@ -13,23 +13,23 @@ try:
 except ImportError:
     from binaryfield import BinaryField
 
-from database_files import utils
-from database_files.utils import write_file, is_fresh
-from database_files.manager import FileManager
+from binary_database_files import utils
+from binary_database_files.utils import write_file, is_fresh
+from binary_database_files.manager import FileManager
 
 from . import settings as _settings
 
 class File(models.Model):
-    
+
     objects = FileManager()
-    
+
     name = models.CharField(
         max_length=255,
         unique=True,
         blank=False,
         null=False,
         db_index=True)
-    
+
     size = models.PositiveIntegerField(
         db_index=True,
         blank=False,
@@ -38,44 +38,44 @@ class File(models.Model):
     content = BinaryField(
         blank=False,
         null=False)
-    
+
     created_datetime = models.DateTimeField(
         db_index=True,
         default=timezone.now,
         verbose_name="Created datetime")
-    
+
     _content_hash = models.CharField(
         db_column='content_hash',
         db_index=True,
         max_length=128,
         blank=True, null=True)
-    
+
     class Meta:
-        db_table = 'database_files_file'
-    
+        db_table = 'binary_database_files_file'
+
     def save(self, *args, **kwargs):
-        
+
         # Check for and clear old content hash.
         if self.id:
             old = File.objects.get(id=self.id)
             if old.content != self.content:
                 self._content_hash = None
-                
+
         # Recalculate new content hash.
         self.content_hash
-        
+
         return super(File, self).save(*args, **kwargs)
-        
+
     @property
     def content_hash(self):
         if not self._content_hash and self.content:
             self._content_hash = utils.get_text_hash(self.content)
         return self._content_hash
-    
+
     def dump(self, check_hash=False):
         """
         Writes the file content to the filesystem.
-        
+
         If check_hash is true, clears the stored file hash and recalculates.
         """
         if is_fresh(self.name, self._content_hash):
@@ -87,7 +87,7 @@ class File(models.Model):
         if check_hash:
             self._content_hash = None
         self.save()
-    
+
     @classmethod
     def dump_files(cls, debug=True, verbose=False):
         """

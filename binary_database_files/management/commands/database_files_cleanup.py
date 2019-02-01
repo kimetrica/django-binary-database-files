@@ -8,7 +8,7 @@ from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import FileField, ImageField, get_models
 
-from database_files.models import File
+from binary_database_files.models import File
 
 class Command(BaseCommand):
     args = ''

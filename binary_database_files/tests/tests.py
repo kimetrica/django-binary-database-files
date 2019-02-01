@@ -10,9 +10,9 @@ from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.conf import settings
 
-from database_files.models import File
-from database_files.tests.models import Thing
-from database_files import utils
+from binary_database_files.models import File
+from binary_database_files.tests.models import Thing
+from binary_database_files import utils
 
 DIR = os.path.abspath(os.path.split(__file__)[0])
 

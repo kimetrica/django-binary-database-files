@@ -3,7 +3,7 @@
 import os
 from setuptools import setup, find_packages, Command
 
-import database_files
+import binary_database_files
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -24,7 +24,7 @@ except:
 
 setup(
     name='django-database-files-3000',
-    version=database_files.__version__,
+    version=binary_database_files.__version__,
     description='A storage system for Django that stores uploaded files in both the database and file system.',
     long_description=long_description,
     author='Chris Spencer',

@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('_content_hash', models.CharField(blank=True, db_column='content_hash', db_index=True, max_length=128, null=True)),
             ],
             options={
-                'db_table': 'database_files_file',
+                'db_table': 'binary_database_files_file',
             },
         ),
     ]

@@ -9,18 +9,18 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = 'database_files.urls'
+ROOT_URLCONF = 'binary_database_files.urls'
 
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'database_files',
-    'database_files.tests',
+    'binary_database_files',
+    'binary_database_files.tests',
 ]
 
-DEFAULT_FILE_STORAGE = 'database_files.storage.DatabaseStorage'
+DEFAULT_FILE_STORAGE = 'binary_database_files.storage.DatabaseStorage'
 
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 

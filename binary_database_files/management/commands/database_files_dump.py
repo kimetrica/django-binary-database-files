@@ -3,7 +3,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
 
-from database_files.models import File
+from binary_database_files.models import File
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -17,4 +17,3 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         File.dump_files(verbose=True)
-        

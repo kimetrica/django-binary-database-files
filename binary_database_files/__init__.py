@@ -7,4 +7,4 @@ __version__ = '.'.join(map(str, VERSION))
 
 
 
-default_app_config = 'database_files.apps.DatabaseFilesAppConfig'
+default_app_config = 'binary_database_files.apps.DatabaseFilesAppConfig'
