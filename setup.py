@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import io
 import os
 from setuptools import setup, find_packages, Command
 
 import binary_database_files
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+DESCRIPTION = (
+    'A storage system for Django that stores uploaded files in both the '
+    'database and file system.'
+)
+
 
 def get_reqs(*fns):
     lst = []
@@ -18,15 +24,17 @@ def get_reqs(*fns):
     return lst
 
 try:
-    long_description = read_md('README.md')
-except:
-    long_description = ''
+    with io.open(os.path.join(CURRENT_DIR, 'README.md'), encoding='utf-8') as f:
+        long_description = '\n' + f.read()
+except FileNotFoundError:
+    long_description = DESCRIPTION
 
 setup(
     name='django-binary-database-files',
     version=binary_database_files.__version__,
-    description='A storage system for Django that stores uploaded files in both the database and file system.',
+    description=DESCRIPTION,
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Johannes Wilm',
     author_email='mail@johanneswilm.org',
     url='http://github.com/johanneswilm/django-binary-database-files',
@@ -44,6 +52,9 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7'
     ],
-    install_requires=get_reqs('pip-requirements-min-django.txt', 'pip-requirements.txt'),
+    install_requires=get_reqs(
+        'pip-requirements-min-django.txt',
+        'pip-requirements.txt'
+    ),
     tests_require=get_reqs('pip-requirements-test.txt'),
 )
