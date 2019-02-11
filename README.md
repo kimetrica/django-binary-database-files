@@ -23,7 +23,7 @@ Installation
 
 Simply install via pip with:
 
-    pip install https://api.github.com/repos/johanneswilm/django-binary-database-files/zipball/master
+    pip install django-binary-database-files
 
 Usage
 -----
@@ -37,11 +37,8 @@ Note, the `upload_to` parameter is still used to synchronize the files stored
 in the database with those on the file system, so new and existing fields
 should still have a value that makes sense from your base media directory.
 
-If you're using South, the initial model migrations will scan through all
-existing models for `FileFields` or `ImageFields` and will automatically
-load them into the database.
-
-If for any reason you want to re-run this bulk import task, run:
+If you are adding the package to an existing Django installation with pre-existing
+files, run:
 
     python manage.py binary_database_files_load
 
