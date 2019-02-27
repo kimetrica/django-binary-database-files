@@ -1,132 +1,60 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import io
 import os
 from setuptools import setup, find_packages, Command
 
-import database_files
+import binary_database_files
+
+CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+DESCRIPTION = (
+    'A storage system for Django that stores uploaded files in both the '
+    'database and file system.'
+)
+
+
+def get_reqs(*fns):
+    lst = []
+    for fn in fns:
+        for package in open(os.path.join(CURRENT_DIR, fn)).readlines():
+            package = package.strip()
+            if not package:
+                continue
+            lst.append(package.strip())
+    return lst
 
 try:
-    from pypandoc import convert
-    read_md = lambda f: convert(f, 'rst')
-except:
-    print("Warning: pypandoc module not found, could not convert "
-        "Markdown to RST")
-    read_md = lambda f: open(f, 'r').read()
-
-def get_reqs(test=False, pv=None):
-    reqs = [
-        'Django>=1.4',
-        'six>=1.7.2',
-    ]
-    if test:
-        #TODO:remove once Django 1.7 south integration becomes main-stream?
-        if not pv:
-            reqs.append('South>=1.0')
-        elif pv <= 3.2:
-            # Note, South dropped Python3 support after 0.8.4...
-            reqs.append('South==0.8.4')
-    return reqs
-
-class TestCommand(Command):
-    description = "Runs unittests."
-    user_options = [
-        ('name=', None,
-         'Name of the specific test to run.'),
-        ('virtual-env-dir=', None,
-         'The location of the virtual environment to use.'),
-        ('pv=', None,
-         'The version of Python to use. e.g. 2.7 or 3'),
-    ]
-    
-    def initialize_options(self):
-        self.name = None
-        self.virtual_env_dir = '.env%s'
-        self.pv = 0
-        self.versions = [
-            2.7,
-            3,
-            #3.3,#TODO?
-        ]
-        
-    def finalize_options(self):
-        pass
-    
-    def build_virtualenv(self, pv):
-        virtual_env_dir = self.virtual_env_dir % pv
-        kwargs = dict(virtual_env_dir=virtual_env_dir, pv=pv)
-        if not os.path.isdir(virtual_env_dir):
-            cmd = 'virtualenv -p /usr/bin/python{pv} {virtual_env_dir}'.format(**kwargs)
-            print(cmd)
-            os.system(cmd)
-            
-            cmd = '{virtual_env_dir}/bin/easy_install -U distribute'.format(**kwargs)
-            print(cmd)
-            os.system(cmd)
-            
-            for package in get_reqs(test=True, pv=float(pv)):
-                kwargs['package'] = package
-                cmd = '{virtual_env_dir}/bin/pip install -U {package}'.format(**kwargs)
-                print(cmd)
-                os.system(cmd)
-    
-    def run(self):
-        versions = self.versions
-        if self.pv:
-            versions = [self.pv]
-        
-        for pv in versions:
-            
-            self.build_virtualenv(pv)
-            kwargs = dict(
-                pv=pv,
-                virtual_env_dir=self.virtual_env_dir % pv,
-                name=self.name)
-                
-            if self.name:
-                cmd = '{virtual_env_dir}/bin/django-admin.py test --pythonpath=. --settings=database_files.tests.settings database_files.tests.tests.{name}'.format(**kwargs)
-            else:
-                cmd = '{virtual_env_dir}/bin/django-admin.py test --pythonpath=. --settings=database_files.tests.settings database_files.tests'.format(**kwargs)
-
-            print(cmd)
-            ret = os.system(cmd)
-            if ret:
-                return
-
-try:
-    long_description = read_md('README.md')
-except:
-    long_description = ''
+    with io.open(os.path.join(CURRENT_DIR, 'README.md'), encoding='utf-8') as f:
+        long_description = '\n' + f.read()
+except FileNotFoundError:
+    long_description = DESCRIPTION
 
 setup(
-    name='django-database-files-3000',
-    version=database_files.__version__,
-    description='A storage system for Django that stores uploaded files in both the database and file system.',
+    name='django-binary-database-files',
+    version=binary_database_files.__version__,
+    description=DESCRIPTION,
     long_description=long_description,
-    author='Chris Spencer',
-    author_email='chrisspen@gmail.com',
-    url='http://github.com/chrisspen/django-database-files-3000',
-    packages=[
-        'database_files',
-        'database_files.management',
-        'database_files.management.commands',
-        'database_files.migrations',
-        'database_files.south_migrations',
-    ],
-    #https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    long_description_content_type='text/markdown',
+    author='Johannes Wilm',
+    author_email='mail@johanneswilm.org',
+    url='http://github.com/johanneswilm/django-binary-database-files',
+    packages=find_packages(),
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 6 - Mature',
         'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.0',
-        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7'
     ],
-    install_requires = get_reqs(),
-    cmdclass={
-        'test': TestCommand,
-    },
+    install_requires=get_reqs(
+        'pip-requirements-min-django.txt',
+        'pip-requirements.txt'
+    ),
+    tests_require=get_reqs('pip-requirements-test.txt'),
 )

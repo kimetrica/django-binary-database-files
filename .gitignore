@@ -57,3 +57,8 @@ docs/_build/
 
 # PIP install version files.
 /=*
+*.geany
+*.out
+
+# Venv
+/venv
