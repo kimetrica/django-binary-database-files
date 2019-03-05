@@ -33,19 +33,20 @@ class DatabaseStorage(FileSystemStorage):
 
     def _open(self, name, mode='rb'):
         """Open file with filename `name` from the database."""
+        instance_name = self.get_instance_name(name)
         try:
             # Load file from database.
-            f = models.File.objects.get_from_name(name)
+            f = models.File.objects.get_from_name(instance_name)
             content = f.content
             size = f.size
             if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS and not utils.is_fresh(f.name, f.content_hash):
                 # Automatically write the file to the filesystem
                 # if it's missing and exists in the database.
                 # This happens if we're using multiple web servers connected
-                # to a common databaes behind a load balancer.
+                # to a common database behind a load balancer.
                 # One user might upload a file from one web server, and then
                 # another might access if from another server.
-                utils.write_file(f.name, f.content)
+                utils.write_file(instance_name, f.content)
         except models.File.DoesNotExist:
             # If not yet in the database, check the local file system
             # and load it into the database if present.
@@ -72,6 +73,7 @@ class DatabaseStorage(FileSystemStorage):
     def _save(self, name, content):
         """Save file with filename `name` and given content to the database."""
         full_path = self.path(name)
+        instance_name = self.get_instance_name(name)
         try:
             size = content.size
         except AttributeError:
@@ -81,13 +83,32 @@ class DatabaseStorage(FileSystemStorage):
         f = models.File.objects.create(
             content=content,
             size=size,
-            name=name,
+            name=instance_name,
         )
         # Automatically write the change to the local file system.
         if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
-            utils.write_file(name, content, overwrite=True)
+            utils.write_file(instance_name, content, overwrite=True)
         # @TODO: add callback to handle custom save behavior?
         return self._generate_name(name, f.pk)
+
+    def get_instance_name(self, name):
+        """
+        Normalize the name relative to the MEDIA_ROOT so that we extract files to the correct
+        location under MEDIA_ROOT based on the File model instance, without needing to
+        have access to the Storage instance, e.g. so that File.dump_files() can work.
+        """
+        full_path = self.path(name)
+        root_path = os.path.abspath(settings.MEDIA_ROOT)
+        assert full_path.startswith(root_path)
+        return full_path[len(root_path) + 1:]
+
+    def get_available_name(self, name, max_length=None):
+        """
+        Return a filename that's free on the target storage system and
+        available for new content to be written to.
+        """
+        name = self.get_instance_name(name)
+        return super(DatabaseStorage, self).get_available_name(name, max_length=max_length)
 
     def exists(self, name):
         """Return True if a file with the given filename exists in the database. Return False otherwise."""
