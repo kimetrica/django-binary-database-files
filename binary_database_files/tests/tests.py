@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import shutil
-from io import BytesIO
+import tempfile
 from zipfile import ZipFile
 
 import six
@@ -11,9 +11,11 @@ from django.core import files
 from django.core.files import File as DjangoFile
 from django.core.files.storage import default_storage
 from django.core.management import call_command
+from django.db import models
 from django.test import TestCase
 
 from binary_database_files.models import File
+from binary_database_files.storage import DatabaseStorage
 from binary_database_files.tests.models import Thing
 from binary_database_files import utils
 
@@ -110,7 +112,7 @@ class DatabaseFilesTestCase(TestCase):
                 with testzip.open(filename) as testfile:
                     uploaded = File.objects.get(name='i/special/' + filename)
                     self.assertEqual(uploaded.size, testzip.getinfo(filename).file_size)
-                    self.assertEqual(BytesIO(uploaded.content).read(), testfile.read())
+                    self.assertEqual(six.BytesIO(uploaded.content).read(), testfile.read())
 
     def test_hash(self):
         verbose = 1
@@ -146,6 +148,53 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(h, expected_hash)
         h = utils.get_text_hash(open(fqfn, 'rb').read())
         self.assertEqual(h, expected_hash)
+
+    def test_custom_location(self):
+        storage = DatabaseStorage(location=os.path.join(DIR, 'media/location'))
+        if os.path.isdir(storage.location):
+            shutil.rmtree(storage.location)
+
+        class CustomLocationThing(models.Model):
+            upload = models.FileField(storage=storage, max_length=500)
+
+            class Meta:
+                managed = False
+                db_table = Thing()._meta.db_table
+
+        # Create a file in a subdirectory of the custom location and save it
+        test_fn = os.path.join('subdirectory', 'test.txt')
+        test_fqfn = os.path.join(storage.location, 'subdirectory', 'test.txt')
+        os.makedirs(os.path.join(storage.location, 'subdirectory'))
+        open(test_fqfn, 'w').write('hello there')
+        o1 = o = CustomLocationThing()
+        o.upload = test_fn
+        o.save()
+
+        # Confirm thing was saved.
+        q = CustomLocationThing.objects.all()
+        self.assertEqual(q.count(), 1)
+        self.assertEqual(q[0].upload.name, test_fn)
+
+        # Confirm the file only exists on the file system
+        # and hasn't been loaded into the database.
+        q = File.objects.all()
+        self.assertEqual(q.count(), 0)
+
+        # Verify we can read the contents of thing.
+        o = CustomLocationThing.objects.first()
+        self.assertEqual(o.upload.read(), b"hello there")
+
+        # Verify that by attempting to read the file, we've automatically
+        # loaded it into the database.
+        self.assertEqual(q.count(), 1)
+        self.assertEqual(six.BytesIO(q.first().content).getvalue(), b"hello there")
+
+        # Delete file from local filesystem and re-export it from the database.
+        self.assertEqual(os.path.isfile(test_fqfn), True)
+        os.remove(test_fqfn)
+        self.assertEqual(os.path.isfile(test_fqfn), False)
+        o1.upload.read()  # This forces the re-export to the filesystem.
+        self.assertEqual(os.path.isfile(test_fqfn), True)
 
     def test_reading_file(self):
         call_command('loaddata', 'test_files.json')
