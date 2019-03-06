@@ -2,6 +2,7 @@
 """Custom storage backend that stores files in the database to facilitate scaling."""
 from __future__ import unicode_literals, division
 import os
+from io import UnsupportedOperation
 
 import six
 
@@ -74,12 +75,13 @@ class DatabaseStorage(FileSystemStorage):
         """Save file with filename `name` and given content to the database."""
         full_path = self.path(name)
         instance_name = self.get_instance_name(name)
+        # ZipExtFile advertises seek() but can raise UnsupportedOperation
         try:
-            size = content.size
-        except AttributeError:
-            size = os.path.getsize(full_path)
-        content.seek(0)
+            content.seek(0)
+        except UnsupportedOperation:
+            pass
         content = content.read()
+        size = len(content)
         f = models.File.objects.create(
             content=content,
             size=size,

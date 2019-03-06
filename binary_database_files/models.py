@@ -1,4 +1,5 @@
-from __future__ import print_function
+# -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals
 
 import base64
 
@@ -7,6 +8,7 @@ import six
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 
 from django.db.models import BinaryField
 
@@ -16,6 +18,8 @@ from binary_database_files.manager import FileManager
 
 from . import settings as _settings
 
+
+@python_2_unicode_compatible
 class File(models.Model):
 
     objects = FileManager()
@@ -49,6 +53,9 @@ class File(models.Model):
 
     class Meta:
         db_table = 'binary_database_files_file'
+
+    def __str__(self):
+        return self.name
 
     def save(self, *args, **kwargs):
 

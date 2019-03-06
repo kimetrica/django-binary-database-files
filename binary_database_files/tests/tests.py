@@ -2,15 +2,17 @@
 import os
 import shutil
 import tempfile
+from zipfile import ZipFile
 
 import six
 
+from django.conf import settings
 from django.core import files
-from django.db import models
-from django.test import TestCase
+from django.core.files import File as DjangoFile
 from django.core.files.storage import default_storage
 from django.core.management import call_command
-from django.conf import settings
+from django.db import models
+from django.test import TestCase
 
 from binary_database_files.models import File
 from binary_database_files.storage import DatabaseStorage
@@ -98,6 +100,19 @@ class DatabaseFilesTestCase(TestCase):
         default_storage.delete('i/special/test.txt')
         self.assertEqual(default_storage.exists('i/special/test.txt'), False)
         self.assertEqual(os.path.isfile(test_fqfn), False)
+
+    def test_adding_extzipfile(self):
+        # ZipExtFile advertises seek() but can raise UnsupportedOperation
+        with ZipFile(os.path.join(DIR, 'fixtures/test.zip')) as testzip:
+            for filename in testzip.namelist():
+                with testzip.open(filename) as testfile:
+                    o = Thing()
+                    o.upload = DjangoFile(testfile)
+                    o.save()
+                with testzip.open(filename) as testfile:
+                    uploaded = File.objects.get(name='i/special/' + filename)
+                    self.assertEqual(uploaded.size, testzip.getinfo(filename).file_size)
+                    self.assertEqual(six.BytesIO(uploaded.content).read(), testfile.read())
 
     def test_hash(self):
         verbose = 1
