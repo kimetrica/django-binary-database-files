@@ -1,7 +1,7 @@
 Django Binary Database Files
 ==========================
 
-[![](https://img.shields.io/pypi/v/django-database-files-3000.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://img.shields.io/travis/johanneswilm/django-binary-data-files.svg?branch=master)](https://travis-ci.org/johanneswilm/django-binary-database-files) [![](https://pyup.io/repos/github/johanneswilm/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/johanneswilm/django-binary-database-files)
+[![](https://img.shields.io/pypi/v/django-binary-database-files.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://img.shields.io/travis/kimetrica/django-binary-database-files.svg?branch=master)](https://travis-ci.org/kimetrica/django-binary-database-files/) [![](https://pyup.io/repos/github/kimetrica/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/kimetrica/django-binary-database-files)
 
 This is a storage system for Django that stores uploaded
 files in binary fields in the database. Files can be served from the database
@@ -93,6 +93,10 @@ Settings
 Development
 -----------
 
+Code should be linted with:
+
+    ./pep8.sh
+
 Tests require the Python development headers to be installed, which you can install on Ubuntu with:
 
     sudo apt-get install python-dev python3-dev python3.6-dev
@@ -113,7 +117,7 @@ To run a specific test:
 
     export TESTNAME=.test_adding_file; tox -e py27-django111
 
-To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.org/chrisspen/django-database-files), and then run:
+To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), and then run:
 
     python setup.py sdist
     python setup.py sdist upload
