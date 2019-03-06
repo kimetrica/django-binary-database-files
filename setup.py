@@ -35,9 +35,9 @@ setup(
     description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Johannes Wilm',
-    author_email='mail@johanneswilm.org',
-    url='http://github.com/johanneswilm/django-binary-database-files',
+    author='Roger Hunwicks',
+    author_email='roger@tonic-solutions.com',
+    url='https://github.com/kimetrica/django-binary-database-files/',
     packages=find_packages(),
     classifiers=[
         'Development Status :: 6 - Mature',

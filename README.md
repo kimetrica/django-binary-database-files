@@ -1,5 +1,5 @@
 Django Binary Database Files
-==========================
+============================
 
 [![](https://img.shields.io/pypi/v/django-binary-database-files.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://img.shields.io/travis/kimetrica/django-binary-database-files.svg?branch=master)](https://travis-ci.org/kimetrica/django-binary-database-files/) [![](https://pyup.io/repos/github/kimetrica/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/kimetrica/django-binary-database-files)
 
@@ -117,7 +117,7 @@ To run a specific test:
 
     export TESTNAME=.test_adding_file; tox -e py27-django111
 
-To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), and then run:
+To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), then increase (and commit) the version number in `binary_database_files/__init__.py` and then run:
 
     python setup.py sdist
     python setup.py sdist upload
