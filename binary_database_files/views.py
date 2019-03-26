@@ -18,7 +18,8 @@ def serve(request, name):
     f = get_object_or_404(File, name=name)
     f.dump()
     mimetype = mimetypes.guess_type(name)[0] or 'application/octet-stream'
-    response = HttpResponse(f.content, content_type=mimetype)
+    # Cast to bytes to work around https://code.djangoproject.com/ticket/30294
+    response = HttpResponse(bytes(f.content), content_type=mimetype)
     response['Content-Length'] = f.size
     return response
 
