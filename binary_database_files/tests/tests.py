@@ -207,3 +207,19 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(content, b'1234567890')
         self.assertEqual(response['content-type'], 'text/plain')
         self.assertEqual(response['content-length'], '10')
+
+    def test_serve_file_from_database(self):
+        call_command('loaddata', 'test_files.json')
+        self.assertEqual(File.objects.count(), 1)
+        test_fqfn = os.path.join(DIR, 'media', '1.txt')
+        self.assertEqual(os.path.isfile(test_fqfn), True)
+        os.remove(test_fqfn)
+        self.assertEqual(os.path.isfile(test_fqfn), False)
+        response = self.client.get('/files/1.txt')
+        if hasattr(response, 'streaming_content'):
+            content = list(response.streaming_content)[0]
+        else:
+            content = response.content
+        self.assertEqual(content, b'1234567890')
+        self.assertEqual(response['content-type'], 'text/plain')
+        self.assertEqual(response['content-length'], '10')
