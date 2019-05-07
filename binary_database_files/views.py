@@ -1,6 +1,4 @@
-import base64
 import mimetypes
-import os
 
 from django.conf import settings
 from django.http import Http404, HttpResponse
@@ -9,6 +7,7 @@ from django.views.decorators.cache import cache_control
 from django.views.static import serve as django_serve
 
 from binary_database_files.models import File
+
 
 @cache_control(max_age=86400)
 def serve(request, name):
@@ -22,6 +21,7 @@ def serve(request, name):
     response = HttpResponse(bytes(f.content), content_type=mimetype)
     response['Content-Length'] = f.size
     return response
+
 
 def serve_mixed(request, *args, **kwargs):
     """

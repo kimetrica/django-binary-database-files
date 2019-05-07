@@ -7,17 +7,20 @@ from django.urls import reverse
 # to the local file system for faster serving.
 DB_FILES_AUTO_EXPORT_DB_TO_FS = settings.DB_FILES_AUTO_EXPORT_DB_TO_FS = getattr(settings, 'DB_FILES_AUTO_EXPORT_DB_TO_FS', True)
 
+
 def URL_METHOD_1(name):
     """
     Construct file URL based on media URL.
     """
     return os.path.join(settings.MEDIA_URL, name)
 
+
 def URL_METHOD_2(name):
     """
     Construct file URL based on configured URL pattern.
     """
     return reverse('database_file', kwargs={'name': name})
+
 
 URL_METHODS = (
     ('URL_METHOD_1', URL_METHOD_1),
