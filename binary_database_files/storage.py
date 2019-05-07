@@ -9,6 +9,7 @@ import six
 from django.conf import settings
 from django.core import files
 from django.core.files.storage import FileSystemStorage
+from django.utils._os import safe_join
 
 from binary_database_files import models
 from binary_database_files import utils
@@ -25,19 +26,12 @@ class DatabaseStorage(FileSystemStorage):
         self._base_url = (kwargs.get('base_url') or settings.DATABASE_FILES_BASE_URL
                           if hasattr(settings, 'DATABASE_FILES_BASE_URL') else '')
 
-    def _generate_name(self, name, pk):
-        """Replace the filename with the specified pk and removes any dir."""
-        # dir_name, file_name = os.path.split(name)
-        # file_root, file_ext = os.path.splitext(file_name)
-        # return '%s%s' % (pk, file_name)
-        return name
-
     def _open(self, name, mode='rb'):
         """Open file with filename `name` from the database."""
-        instance_name = self.get_instance_name(name)
+        name = self.get_instance_name(name)
         try:
             # Load file from database.
-            f = models.File.objects.get_from_name(instance_name)
+            f = models.File.objects.get_from_name(name)
             content = f.content
             size = f.size
             if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS and not utils.is_fresh(f.name, f.content_hash):
@@ -47,7 +41,7 @@ class DatabaseStorage(FileSystemStorage):
                 # to a common database behind a load balancer.
                 # One user might upload a file from one web server, and then
                 # another might access if from another server.
-                utils.write_file(instance_name, f.content)
+                utils.write_file(name, f.content)
         except models.File.DoesNotExist:
             # If not yet in the database, check the local file system
             # and load it into the database if present.
@@ -73,8 +67,7 @@ class DatabaseStorage(FileSystemStorage):
 
     def _save(self, name, content):
         """Save file with filename `name` and given content to the database."""
-        full_path = self.path(name)
-        instance_name = self.get_instance_name(name)
+        name = self.get_instance_name(name)
         # ZipExtFile advertises seek() but can raise UnsupportedOperation
         try:
             content.seek(0)
@@ -82,16 +75,15 @@ class DatabaseStorage(FileSystemStorage):
             pass
         content = content.read()
         size = len(content)
-        f = models.File.objects.create(
+        models.File.objects.create(
             content=content,
             size=size,
-            name=instance_name,
+            name=name,
         )
         # Automatically write the change to the local file system.
         if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
-            utils.write_file(instance_name, content, overwrite=True)
-        # @TODO: add callback to handle custom save behavior?
-        return self._generate_name(name, f.pk)
+            utils.write_file(name, content, overwrite=True)
+        return name
 
     def get_instance_name(self, name):
         """
@@ -99,27 +91,34 @@ class DatabaseStorage(FileSystemStorage):
         location under MEDIA_ROOT based on the File model instance, without needing to
         have access to the Storage instance, e.g. so that File.dump_files() can work.
         """
-        full_path = self.path(name)
         root_path = os.path.abspath(settings.MEDIA_ROOT)
-        assert full_path.startswith(root_path)
+        assert self.location.startswith(root_path)
+        relative_location = self.location[len(root_path) + 1:]
+        if relative_location and name[:len(relative_location) + 1] == relative_location + os.path.sep:
+            # Name already normalized to the media root
+            return name
+        full_path = safe_join(self.location, name)
         return full_path[len(root_path) + 1:]
 
-    def get_available_name(self, name, max_length=None):
+    def path(self, name):
         """
-        Return a filename that's free on the target storage system and
-        available for new content to be written to.
+        Return a local filesystem path where the file can be retrieved using
+        Python's built-in open() function.
+
+        File names are normalized to the MEDIA_ROOT.
         """
-        name = self.get_instance_name(name)
-        return super(DatabaseStorage, self).get_available_name(name, max_length=max_length)
+        return safe_join(settings.MEDIA_ROOT, self.get_instance_name(name))
 
     def exists(self, name):
         """Return True if a file with the given filename exists in the database. Return False otherwise."""
+        name = self.get_instance_name(name)
         if models.File.objects.filter(name=name).exists():
             return True
         return super(DatabaseStorage, self).exists(name)
 
     def delete(self, name):
         """Delete the file with filename `name` from the database and filesystem."""
+        name = self.get_instance_name(name)
         try:
             models.File.objects.get_from_name(name).delete()
             hash_fn = utils.get_hash_fn(name)
