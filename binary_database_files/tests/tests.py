@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core import files
 from django.core.files import File as DjangoFile
 from django.core.files.storage import default_storage
+from django.core.files.temp import NamedTemporaryFile
 from django.core.management import call_command
 from django.db import models
 from django.test import TestCase
@@ -20,6 +21,7 @@ from binary_database_files.tests.models import Thing
 from binary_database_files import utils
 
 DIR = os.path.abspath(os.path.split(__file__)[0])
+
 
 class DatabaseFilesTestCase(TestCase):
 
@@ -52,6 +54,9 @@ class DatabaseFilesTestCase(TestCase):
         q = File.objects.all()
         self.assertEqual(q.count(), 0)
 
+        # Verify that the storage reports that the file exists
+        self.assertTrue(o.upload.storage.exists(o.upload.name))
+
         # Verify we can read the contents of thing.
         o = Thing.objects.get(id=obj_id)
         self.assertEqual(o.upload.read(), b"hello there")
@@ -67,7 +72,6 @@ class DatabaseFilesTestCase(TestCase):
         test_file = files.temp.NamedTemporaryFile(
             suffix='.txt',
             # Django>=1.10 no longer allows accessing files outside of MEDIA_ROOT...
-            #dir=files.temp.gettempdir()
             dir=os.path.join(settings.PROJECT_DIR, 'media'),
         )
         data0 = b'1234567890'
@@ -88,7 +92,9 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(os.path.isfile(test_fqfn), True)
         os.remove(test_fqfn)
         self.assertEqual(os.path.isfile(test_fqfn), False)
-        o1.upload.read() # This forces the re-export to the filesystem.
+        # Verify that the storage still reports that the file exists
+        self.assertTrue(o1.upload.storage.exists(o1.upload.name))
+        o1.upload.read()  # This forces the re-export to the filesystem.
         self.assertEqual(os.path.isfile(test_fqfn), True)
 
         # This dumps all files to the filesystem.
@@ -115,33 +121,29 @@ class DatabaseFilesTestCase(TestCase):
                     self.assertEqual(six.BytesIO(uploaded.content).read(), testfile.read())
 
     def test_hash(self):
-        verbose = 1
-
         # Create test file.
         image_content = open(os.path.join(DIR, 'fixtures/test_image.png'), 'rb').read()
         fqfn = os.path.join(self.media_dir, 'image.png')
         open(fqfn, 'wb').write(image_content)
 
         # Calculate hash from various sources and confirm they all match.
-        expected_hash = '35830221efe45ab0dc3d91ca23c29d2d3c20d00c9afeaa096ab256ec322a7a0b3293f07a01377e31060e65b4e5f6f8fdb4c0e56bc586bba5a7ab3e6d6d97a192' # pylint: disable=C0301
+        expected_hash = '35830221efe45ab0dc3d91ca23c29d2d3c20d00c9afeaa096ab256ec322a7a0b3293f07a01377e31060e65b4e5f6f8fdb4c0e56bc586bba5a7ab3e6d6d97a192'  # pylint: disable=C0301
         h = utils.get_text_hash(image_content)
         self.assertEqual(h, expected_hash)
         h = utils.get_file_hash(fqfn)
         self.assertEqual(h, expected_hash)
         h = utils.get_text_hash(open(fqfn, 'rb').read())
         self.assertEqual(h, expected_hash)
-#        h = utils.get_text_hash(open(fqfn, 'r').read())#not supported in py3
-#        self.assertEqual(h, expected_hash)
 
         # Create test file.
         if six.PY3:
-            image_content = six.text_type('aあä')#, encoding='utf-8')
+            image_content = six.text_type('aあä')
         else:
             image_content = six.text_type('aあä', encoding='utf-8')
         fqfn = os.path.join(self.media_dir, 'test.txt')
         open(fqfn, 'wb').write(image_content.encode('utf-8'))
 
-        expected_hash = '1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75' # pylint: disable=C0301
+        expected_hash = '1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75'  # pylint: disable=C0301
         h = utils.get_text_hash(image_content)
         self.assertEqual(h, expected_hash)
         h = utils.get_file_hash(fqfn)
@@ -149,8 +151,56 @@ class DatabaseFilesTestCase(TestCase):
         h = utils.get_text_hash(open(fqfn, 'rb').read())
         self.assertEqual(h, expected_hash)
 
+    def test_get_available_name(self):
+        storage = DatabaseStorage(location=os.path.join(DIR, 'media/custom_location'))
+        if os.path.isdir(storage.location):
+            shutil.rmtree(storage.location)
+
+        class CustomLocationThing(models.Model):
+            upload = models.FileField(storage=storage, max_length=500)
+
+            class Meta:
+                managed = False
+                db_table = Thing()._meta.db_table
+
+        # Create a file in a subdirectory of the custom location and save it
+        test_fn = os.path.join('subdirectory', 'test.txt')
+        test_fqfn = os.path.join(storage.location, 'subdirectory', 'test.txt')
+        with NamedTemporaryFile() as t:
+            t.write(b"hello there")
+            o = CustomLocationThing()
+            o.upload = files.File(t, name=test_fn)
+            o.save()
+
+        # Verify we can read the contents of thing.
+        o = CustomLocationThing.objects.first()
+        self.assertEqual(o.upload.read(), b"hello there")
+        self.assertEqual(File.objects.count(), 1)
+        self.assertEqual(File.objects.first().name, os.path.join('custom_location', 'subdirectory', 'test.txt'))
+
+        # Delete file from local filesystem
+        self.assertEqual(os.path.isfile(test_fqfn), True)
+        os.remove(test_fqfn)
+        self.assertEqual(os.path.isfile(test_fqfn), False)
+
+        # Create another (different) file in the same subdirectory of the custom location and save it
+        with NamedTemporaryFile() as t:
+            t.write(b"goodbye")
+            o2 = o = CustomLocationThing()
+            o.upload = files.File(t, name=test_fn)
+            o.save()
+
+        # Verify we can read the contents of thing.
+        o = CustomLocationThing.objects.get(pk=o2.pk)
+        self.assertEqual(o.upload.read(), b"goodbye")
+        self.assertEqual(File.objects.count(), 2)
+        # 'custom_location/subdirectory/test.txt' is already taken, so the second file
+        # should have a different name
+        self.assertNotEqual(o.upload.name, os.path.join('custom_location', 'subdirectory', 'test.txt'))
+        self.assertTrue(o.upload.name.startswith(os.path.join('custom_location', 'subdirectory', 'test_')))
+
     def test_custom_location(self):
-        storage = DatabaseStorage(location=os.path.join(DIR, 'media/location'))
+        storage = DatabaseStorage(location=os.path.join(DIR, 'media/custom_location'))
         if os.path.isdir(storage.location):
             shutil.rmtree(storage.location)
 
@@ -189,10 +239,126 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(q.count(), 1)
         self.assertEqual(six.BytesIO(q.first().content).getvalue(), b"hello there")
 
+        # Verify that the storage reports that the file exists
+        self.assertTrue(o.upload.storage.exists(o.upload.name))
+
         # Delete file from local filesystem and re-export it from the database.
         self.assertEqual(os.path.isfile(test_fqfn), True)
         os.remove(test_fqfn)
         self.assertEqual(os.path.isfile(test_fqfn), False)
+        # Verify that the storage still reports that the file exists
+        self.assertTrue(o1.upload.storage.exists(o1.upload.name))
+        o1.upload.read()  # This forces the re-export to the filesystem.
+        self.assertEqual(os.path.isfile(test_fqfn), True)
+
+        # Verify that deleting the file from the storage removes both the database and the local copy
+        o.upload.delete()
+        self.assertEqual(os.path.isfile(test_fqfn), False)
+        self.assertEqual(q.count(), 0)
+        self.assertFalse(o1.upload.storage.exists(o1.upload.name))
+
+    def test_duplicate_name_in_different_locations(self):
+        storage1 = DatabaseStorage(location=os.path.join(DIR, 'media/location1'))
+        if os.path.isdir(storage1.location):
+            shutil.rmtree(storage1.location)
+
+        storage2 = DatabaseStorage(location=os.path.join(DIR, 'media/location2'))
+        if os.path.isdir(storage2.location):
+            shutil.rmtree(storage2.location)
+
+        def get_name(instance, filename):
+            return "dummy.txt"
+
+        class Location1Thing(models.Model):
+            upload = models.FileField(storage=storage1, upload_to=get_name, max_length=500)
+
+            class Meta:
+                managed = False
+                db_table = Thing()._meta.db_table
+
+        class Location2Thing(models.Model):
+            upload = models.FileField(storage=storage2, upload_to=get_name, max_length=500)
+
+            class Meta:
+                managed = False
+                db_table = Thing()._meta.db_table
+
+        tmpdir = tempfile.mkdtemp(dir=os.path.join(settings.PROJECT_DIR, 'media'))
+        data1 = b'11111111'
+        open(os.path.join(tmpdir, "dummy.txt"), 'wb').write(data1)
+        upload = files.File(open(os.path.join(tmpdir, "dummy.txt"), 'rb'))
+        t1 = Location1Thing(upload=upload)
+        t1.save()
+        self.assertTrue(t1.upload.storage.exists(t1.upload.name))
+        os.remove(t1.upload.path)
+        self.assertTrue(t1.upload.storage.exists(t1.upload.name))
+        self.assertEqual(t1.upload.path, os.path.join(t1.upload.storage.location, "dummy.txt"))
+        self.assertEqual(t1.upload.path, Location1Thing.objects.get(pk=t1.pk).upload.path)
+        data2 = b'22222222'
+        open(os.path.join(tmpdir, "dummy.txt"), 'wb').write(data2)
+        t2 = Location2Thing.objects.create(upload=files.File(open(os.path.join(tmpdir, "dummy.txt"), 'rb')))
+        os.remove(t2.upload.path)
+        self.assertTrue(t2.upload.storage.exists(t2.upload.name))
+        self.assertEqual(t2.upload.path, os.path.join(t2.upload.storage.location, "dummy.txt"))
+        self.assertEqual(t2.upload.path, Location2Thing.objects.get(pk=t2.pk).upload.path)
+
+        self.assertEqual(File.objects.count(), 2)
+        self.assertEqual(Location2Thing.objects.get(pk=t2.pk).upload.file.read(), data2)
+        self.assertEqual(Location1Thing.objects.get(pk=t1.pk).upload.file.read(), data1)
+        shutil.rmtree(tmpdir)
+
+    def test_custom_upload_to(self):
+        storage = DatabaseStorage(location=os.path.join(DIR, 'media/custom_location'))
+        if os.path.isdir(storage.location):
+            shutil.rmtree(storage.location)
+
+        def get_name(instance, filename):
+            return "dummy.txt"
+
+        class CustomUploadToThing(models.Model):
+            upload = models.FileField(storage=storage, upload_to=get_name, max_length=500)
+
+            class Meta:
+                managed = False
+                db_table = Thing()._meta.db_table
+
+        # Create a file in a subdirectory of the custom location and save it
+        test_fn = os.path.join('subdirectory', 'test.txt')
+        test_fqfn = os.path.join(storage.location, 'subdirectory', 'test.txt')
+        os.makedirs(os.path.join(storage.location, 'subdirectory'))
+        open(test_fqfn, 'w').write('hello there')
+        o1 = o = CustomUploadToThing()
+        o.upload = test_fn
+        o.save()
+
+        # Confirm thing was saved.
+        q = CustomUploadToThing.objects.all()
+        self.assertEqual(q.count(), 1)
+        self.assertEqual(q[0].upload.name, test_fn)
+
+        # Confirm the file only exists on the file system
+        # and hasn't been loaded into the database.
+        q = File.objects.all()
+        self.assertEqual(q.count(), 0)
+
+        # Verify we can read the contents of thing.
+        o = CustomUploadToThing.objects.first()
+        self.assertEqual(o.upload.read(), b"hello there")
+
+        # Verify that by attempting to read the file, we've automatically
+        # loaded it into the database.
+        self.assertEqual(q.count(), 1)
+        self.assertEqual(six.BytesIO(q.first().content).getvalue(), b"hello there")
+
+        # Verify that the storage reports that the file exists
+        self.assertTrue(o.upload.storage.exists(o.upload.name))
+
+        # Delete file from local filesystem and re-export it from the database.
+        self.assertEqual(os.path.isfile(test_fqfn), True)
+        os.remove(test_fqfn)
+        self.assertEqual(os.path.isfile(test_fqfn), False)
+        # Verify that the storage still reports that the file exists
+        self.assertTrue(o1.upload.storage.exists(o1.upload.name))
         o1.upload.read()  # This forces the re-export to the filesystem.
         self.assertEqual(os.path.isfile(test_fqfn), True)
 
