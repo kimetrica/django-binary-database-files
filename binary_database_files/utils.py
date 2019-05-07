@@ -7,6 +7,7 @@ import six
 from django.conf import settings
 from binary_database_files import settings as _settings
 
+
 def is_fresh(name, content_hash):
     """
     Returns true if the file exists on the local filesystem and matches the
@@ -34,18 +35,19 @@ def is_fresh(name, content_hash):
     local_content_hash = get_file_hash(fqfn)
     return local_content_hash == content_hash
 
+
 def get_hash_fn(name):
     """
     Returns the filename for the hash file.
     """
     fqfn = os.path.join(settings.MEDIA_ROOT, name)
     fqfn = os.path.normpath(fqfn)
-    dirs, fn = os.path.split(fqfn)
-    if not os.path.isdir(dirs):
-        os.makedirs(dirs)
     fqfn_parts = os.path.split(fqfn)
+    if not os.path.isdir(fqfn_parts[0]):
+        os.makedirs(fqfn_parts[0])
     hash_fn = os.path.join(fqfn_parts[0], _settings.DB_FILES_DEFAULT_HASH_FN_TEMPLATE % fqfn_parts[1])
     return hash_fn
+
 
 def write_file(name, content, overwrite=False):
     """
@@ -55,9 +57,9 @@ def write_file(name, content, overwrite=False):
     fqfn = os.path.normpath(fqfn)
     if os.path.isfile(fqfn) and not overwrite:
         return
-    dirs, fn = os.path.split(fqfn)
-    if not os.path.isdir(dirs):
-        os.makedirs(dirs)
+    fqfn_parts = os.path.split(fqfn)
+    if not os.path.isdir(fqfn_parts[0]):
+        os.makedirs(fqfn_parts[0])
     open(fqfn, 'wb').write(content)
 
     # Cache hash.
@@ -74,14 +76,15 @@ def write_file(name, content, overwrite=False):
     uname = getattr(settings, 'DATABASE_FILES_USER', None)
     gname = getattr(settings, 'DATABASE_FILES_GROUP', None)
     if gname:
-        gname = ':'+gname
+        gname = ':' + gname
     if uname:
-        os.system('chown -RL %s%s "%s"' % (uname, gname, dirs))
+        os.system('chown -RL %s%s "%s"' % (uname, gname, fqfn_parts[0]))
 
     # Set permissions.
     perms = getattr(settings, 'DATABASE_FILES_PERMS', None)
     if perms:
-        os.system('chmod -R %s "%s"' % (perms, dirs))
+        os.system('chmod -R %s "%s"' % (perms, fqfn_parts[0]))
+
 
 def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_size=128):
     """
@@ -109,6 +112,7 @@ def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_si
             h.update(text)
     return h.hexdigest()
 
+
 def get_text_hash_0004(text):
     """
     Returns the hash of the given text.
@@ -118,6 +122,7 @@ def get_text_hash_0004(text):
         text = six.text_type(text, encoding='utf-8', errors='replace')
     h.update(text.encode('utf-8', 'replace'))
     return h.hexdigest()
+
 
 def get_text_hash(text, force_encoding=None, encoding=None, errors=None):
     """

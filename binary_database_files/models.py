@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
-import base64
-
-import six
-
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -15,8 +11,6 @@ from django.db.models import BinaryField
 from binary_database_files import utils
 from binary_database_files.utils import write_file, is_fresh
 from binary_database_files.manager import FileManager
-
-from . import settings as _settings
 
 
 @python_2_unicode_compatible
