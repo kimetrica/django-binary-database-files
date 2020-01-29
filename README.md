@@ -65,7 +65,7 @@ Settings
 
     If false, the file will only exist in the database.
 
-* `DATABASE_FILES_URL_METHOD` = `URL_METHOD_1`|`URL_METHOD_1` (default `URL_METHOD_1`)
+* `DATABASE_FILES_URL_METHOD` = `URL_METHOD_1`|`URL_METHOD_2` (default `URL_METHOD_1`)
 
     Defines the method to use when rendering the web-accessible URL for a file.
 
