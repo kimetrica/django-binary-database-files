@@ -1,4 +1,3 @@
-
 import os
 import hashlib
 
@@ -45,7 +44,9 @@ def get_hash_fn(name):
     fqfn_parts = os.path.split(fqfn)
     if not os.path.isdir(fqfn_parts[0]):
         os.makedirs(fqfn_parts[0])
-    hash_fn = os.path.join(fqfn_parts[0], _settings.DB_FILES_DEFAULT_HASH_FN_TEMPLATE % fqfn_parts[1])
+    hash_fn = os.path.join(
+        fqfn_parts[0], _settings.DB_FILES_DEFAULT_HASH_FN_TEMPLATE % fqfn_parts[1]
+    )
     return hash_fn
 
 
@@ -60,28 +61,28 @@ def write_file(name, content, overwrite=False):
     fqfn_parts = os.path.split(fqfn)
     if not os.path.isdir(fqfn_parts[0]):
         os.makedirs(fqfn_parts[0])
-    open(fqfn, 'wb').write(content)
+    open(fqfn, "wb").write(content)
 
     # Cache hash.
     hash_value = get_file_hash(fqfn)
     hash_fn = get_hash_fn(name)
     try:
         # Write out bytes in Python3.
-        value = six.binary_type(hash_value, 'utf-8')
+        value = six.binary_type(hash_value, "utf-8")
     except TypeError:
         value = hash_value
-    open(hash_fn, 'wb').write(value)
+    open(hash_fn, "wb").write(value)
 
     # Set ownership and permissions.
-    uname = getattr(settings, 'DATABASE_FILES_USER', None)
-    gname = getattr(settings, 'DATABASE_FILES_GROUP', None)
+    uname = getattr(settings, "DATABASE_FILES_USER", None)
+    gname = getattr(settings, "DATABASE_FILES_GROUP", None)
     if gname:
-        gname = ':' + gname
+        gname = ":" + gname
     if uname:
         os.system('chown -RL %s%s "%s"' % (uname, gname, fqfn_parts[0]))
 
     # Set permissions.
-    perms = getattr(settings, 'DATABASE_FILES_PERMS', None)
+    perms = getattr(settings, "DATABASE_FILES_PERMS", None)
     if perms:
         os.system('chmod -R %s "%s"' % (perms, fqfn_parts[0]))
 
@@ -98,9 +99,9 @@ def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_si
     errors = errors or _settings.DB_FILES_DEFAULT_ERROR_METHOD
 
     if isinstance(fin, six.string_types):
-        fin = open(fin, 'rb')
+        fin = open(fin, "rb")
     h = hashlib.sha512()
-    while 1:
+    while True:
         text = fin.read(chunk_size)
         if not text:
             break
@@ -119,8 +120,8 @@ def get_text_hash_0004(text):
     """
     h = hashlib.sha512()
     if not isinstance(text, six.text_type):
-        text = six.text_type(text, encoding='utf-8', errors='replace')
-    h.update(text.encode('utf-8', 'replace'))
+        text = six.text_type(text, encoding="utf-8", errors="replace")
+    h.update(text.encode("utf-8", "replace"))
     return h.hexdigest()
 
 

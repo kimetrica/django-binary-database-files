@@ -23,10 +23,13 @@ class DatabaseStorage(FileSystemStorage):
         """Override __init__ to allow passing of base_url parameter to be able to resolve to absolute URL."""
         super(DatabaseStorage, self).__init__(*args, **kwargs)
         # we check first if base_url has been passed to __init__, if not we try settings and finally fall back to ''
-        self._base_url = (kwargs.get('base_url') or settings.DATABASE_FILES_BASE_URL
-                          if hasattr(settings, 'DATABASE_FILES_BASE_URL') else '')
+        self._base_url = (
+            kwargs.get("base_url") or settings.DATABASE_FILES_BASE_URL
+            if hasattr(settings, "DATABASE_FILES_BASE_URL")
+            else ""
+        )
 
-    def _open(self, name, mode='rb'):
+    def _open(self, name, mode="rb"):
         """Open file with filename `name` from the database."""
         name = self.get_instance_name(name)
         try:
@@ -34,7 +37,9 @@ class DatabaseStorage(FileSystemStorage):
             f = models.File.objects.get_from_name(name)
             content = f.content
             size = f.size
-            if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS and not utils.is_fresh(f.name, f.content_hash):
+            if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS and not utils.is_fresh(
+                f.name, f.content_hash
+            ):
                 # Automatically write the file to the filesystem
                 # if it's missing and exists in the database.
                 # This happens if we're using multiple web servers connected
@@ -56,7 +61,7 @@ class DatabaseStorage(FileSystemStorage):
                 # Otherwise we don't know where the file is so we return an
                 # empty file
                 size = 0
-                content = b''
+                content = b""
         # Normalize the content to a new file object.
         fh = six.BytesIO(content)
         fh.name = name
@@ -74,13 +79,11 @@ class DatabaseStorage(FileSystemStorage):
         except UnsupportedOperation:
             pass
         content = content.read()
-        if type(content) == str:
-             content = content.encode('utf-8')
+        if isinstance(content, str):
+            content = content.encode("utf-8")
         size = len(content)
         models.File.objects.create(
-            content=content,
-            size=size,
-            name=name,
+            content=content, size=size, name=name,
         )
         # Automatically write the change to the local file system.
         if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
@@ -95,12 +98,15 @@ class DatabaseStorage(FileSystemStorage):
         """
         root_path = os.path.abspath(settings.MEDIA_ROOT)
         assert self.location.startswith(root_path)
-        relative_location = self.location[len(root_path) + 1:]
-        if relative_location and name[:len(relative_location) + 1] == relative_location + os.path.sep:
+        relative_location = self.location[len(root_path) + 1 :]
+        if (
+            relative_location
+            and name[: len(relative_location) + 1] == relative_location + os.path.sep
+        ):
             # Name already normalized to the media root
             return name
         full_path = safe_join(self.location, name)
-        return full_path[len(root_path) + 1:]
+        return full_path[len(root_path) + 1 :]
 
     def path(self, name):
         """
@@ -138,7 +144,7 @@ class DatabaseStorage(FileSystemStorage):
         We could also raise an error like the SFTP backend of django-storages is doing, but the relative URL is the
         previous behavior so we fall back to that.
         """
-        return '{}{}'.format(self._base_url, settings.DATABASE_FILES_URL_METHOD(name))
+        return "{}{}".format(self._base_url, settings.DATABASE_FILES_URL_METHOD(name))
 
     def size(self, name):
         """Return the size of the file with filename `name` in bytes."""

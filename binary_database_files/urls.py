@@ -6,7 +6,5 @@ except ImportError:
 from binary_database_files import views
 
 urlpatterns = [
-    re_path(r'^files/(?P<name>.+)$',
-        views.serve_mixed,
-        name='database_file'),
+    re_path(r"^files/(?P<name>.+)$", views.serve_mixed, name="database_file"),
 ]

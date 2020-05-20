@@ -1,2 +1,3 @@
 #!/bin/bash
-pylint --rcfile=pylint.rc binary_database_files
+flake8 binary_database_files
+black --check binary_database_files

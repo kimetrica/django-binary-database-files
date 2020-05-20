@@ -4,32 +4,36 @@ import os
 from optparse import make_option
 
 from django.conf import settings
-from django.core.files.storage import default_storage
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.db.models import FileField, ImageField
 from django.apps.apps import get_models
 
+
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
-        make_option('-m', '--models',
-            dest='models', default='',
-            help='A list of models to search for file fields. Default is all.'),
+        make_option(
+            "-m",
+            "--models",
+            dest="models",
+            default="",
+            help="A list of models to search for file fields. Default is all.",
+        ),
     )
-    help = 'Loads all files on the filesystem referenced by FileFields ' + \
-        'or ImageFields into the database. This should only need to be ' + \
-        'done once, when initially migrating a legacy system.'
+    help = (
+        "Loads all files on the filesystem referenced by FileFields "
+        "or ImageFields into the database. This should only need to be "
+        "done once, when initially migrating a legacy system."
+    )
 
     def handle(self, *args, **options):
-        show_files = int(options.get('verbosity', 1)) >= 2
+        show_files = int(options.get("verbosity", 1)) >= 2
         all_models = [
-            _.lower().strip()
-            for _ in options.get('models', '').split()
-            if _.strip()
+            _.lower().strip() for _ in options.get("models", "").split() if _.strip()
         ]
         tmp_debug = settings.DEBUG
         settings.DEBUG = False
         try:
-            broken = 0 # Number of db records referencing missing files.
+            broken = 0  # Number of db records referencing missing files.
             for model in get_models():
                 key = "%s.%s" % (model._meta.app_label, model._meta.module_name)
                 key = key.lower()
@@ -41,8 +45,8 @@ class Command(BaseCommand):
                     if show_files:
                         print(model.__name__, field.name)
                     # Ignore records with null or empty string values.
-                    q = {'%s__isnull'%field.name:False}
-                    xq = {field.name:''}
+                    q = {"%s__isnull" % field.name: False}
+                    xq = {field.name: ""}
                     for row in model.objects.filter(**q).exclude(**xq):
                         try:
                             f = getattr(row, field.name)
@@ -62,7 +66,7 @@ class Command(BaseCommand):
                         except IOError:
                             broken += 1
             if show_files:
-                print('-'*80)
-                print('%i broken' % (broken,))
+                print("-" * 80)
+                print("%i broken" % (broken,))
         finally:
             settings.DEBUG = tmp_debug

@@ -19,34 +19,23 @@ class File(models.Model):
     objects = FileManager()
 
     name = models.CharField(
-        max_length=255,
-        unique=True,
-        blank=False,
-        null=False,
-        db_index=True)
+        max_length=255, unique=True, blank=False, null=False, db_index=True
+    )
 
-    size = models.PositiveIntegerField(
-        db_index=True,
-        blank=False,
-        null=False)
+    size = models.PositiveIntegerField(db_index=True, blank=False, null=False)
 
-    content = BinaryField(
-        blank=False,
-        null=False)
+    content = BinaryField(blank=False, null=False)
 
     created_datetime = models.DateTimeField(
-        db_index=True,
-        default=timezone.now,
-        verbose_name="Created datetime")
+        db_index=True, default=timezone.now, verbose_name="Created datetime"
+    )
 
     _content_hash = models.CharField(
-        db_column='content_hash',
-        db_index=True,
-        max_length=128,
-        blank=True, null=True)
+        db_column="content_hash", db_index=True, max_length=128, blank=True, null=True
+    )
 
     class Meta:
-        db_table = 'binary_database_files_file'
+        db_table = "binary_database_files_file"
 
     def __str__(self):
         return self.name
@@ -78,10 +67,7 @@ class File(models.Model):
         """
         if is_fresh(self.name, self._content_hash):
             return
-        write_file(
-            self.name,
-            self.content,
-            overwrite=True)
+        write_file(self.name, self.content, overwrite=True)
         if check_hash:
             self._content_hash = None
         self.save()
@@ -95,25 +81,25 @@ class File(models.Model):
             tmp_debug = settings.DEBUG
             settings.DEBUG = False
         try:
-            q = cls.objects.only('id', 'name', '_content_hash')\
-                .values_list('id', 'name', '_content_hash')
+            q = cls.objects.only("id", "name", "_content_hash").values_list(
+                "id", "name", "_content_hash"
+            )
             total = q.count()
             if verbose:
-                print('Checking %i total files...' % (total,))
+                print("Checking %i total files..." % (total,))
             i = 0
             for (file_id, name, content_hash) in q.iterator():
                 i += 1
                 if verbose and not i % 100:
-                    print('%i of %i' % (i, total))
+                    print("%i of %i" % (i, total))
                 if not is_fresh(name=name, content_hash=content_hash):
                     if verbose:
-                        print(('File %i-%s is stale. Writing to local file '
-                            'system...') % (file_id, name))
+                        print(
+                            ("File %i-%s is stale. Writing to local file " "system...")
+                            % (file_id, name)
+                        )
                     f = File.objects.get(id=file_id)
-                    write_file(
-                        f.name,
-                        f.content,
-                        overwrite=True)
+                    write_file(f.name, f.content, overwrite=True)
                     f._content_hash = None
                     f.save()
         finally:
