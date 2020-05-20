@@ -1,8 +1,6 @@
 import os
 import hashlib
 
-import six
-
 from django.conf import settings
 from binary_database_files import settings as _settings
 
@@ -67,8 +65,7 @@ def write_file(name, content, overwrite=False):
     hash_value = get_file_hash(fqfn)
     hash_fn = get_hash_fn(name)
     try:
-        # Write out bytes in Python3.
-        value = six.binary_type(hash_value, "utf-8")
+        value = bytes(hash_value, "utf-8")
     except TypeError:
         value = hash_value
     open(hash_fn, "wb").write(value)
@@ -98,7 +95,7 @@ def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_si
 
     errors = errors or _settings.DB_FILES_DEFAULT_ERROR_METHOD
 
-    if isinstance(fin, six.string_types):
+    if isinstance(fin, str):
         fin = open(fin, "rb")
     h = hashlib.sha512()
     while True:
@@ -106,8 +103,8 @@ def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_si
         if not text:
             break
         if force_encoding:
-            if not isinstance(text, six.text_type):
-                text = six.text_type(text, encoding=encoding, errors=errors)
+            if not isinstance(text, str):
+                text = str(text, encoding=encoding, errors=errors)
             h.update(text.encode(encoding, errors))
         else:
             h.update(text)
@@ -119,8 +116,8 @@ def get_text_hash_0004(text):
     Returns the hash of the given text.
     """
     h = hashlib.sha512()
-    if not isinstance(text, six.text_type):
-        text = six.text_type(text, encoding="utf-8", errors="replace")
+    if not isinstance(text, str):
+        text = str(text, encoding="utf-8", errors="replace")
     h.update(text.encode("utf-8", "replace"))
     return h.hexdigest()
 
@@ -138,8 +135,8 @@ def get_text_hash(text, force_encoding=None, encoding=None, errors=None):
 
     h = hashlib.sha512()
     if force_encoding:
-        if not isinstance(text, six.text_type):
-            text = six.text_type(text, encoding=encoding, errors=errors)
+        if not isinstance(text, str):
+            text = str(text, encoding=encoding, errors=errors)
         h.update(text.encode(encoding, errors))
     else:
         h.update(text)

@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 import os
 import shutil
 import tempfile
 import base64
+from io import BytesIO
 from zipfile import ZipFile
-
-import six
 
 from django.conf import settings
 from django.core import files
@@ -67,7 +65,7 @@ class DatabaseFilesTestCase(TestCase):
         File.objects.update()
         q = File.objects.all()
         self.assertEqual(q.count(), 1)
-        self.assertEqual(six.BytesIO(q.first().content).getvalue(), b"hello there")
+        self.assertEqual(BytesIO(q.first().content).getvalue(), b"hello there")
 
         # Load a dynamically created file outside /media.
         test_file = files.temp.NamedTemporaryFile(
@@ -117,9 +115,7 @@ class DatabaseFilesTestCase(TestCase):
                 with testzip.open(filename) as testfile:
                     uploaded = File.objects.get(name="i/special/" + filename)
                     self.assertEqual(uploaded.size, testzip.getinfo(filename).file_size)
-                    self.assertEqual(
-                        six.BytesIO(uploaded.content).read(), testfile.read()
-                    )
+                    self.assertEqual(BytesIO(uploaded.content).read(), testfile.read())
 
     def test_adding_base64_file(self):
         image_content = open(os.path.join(DIR, "fixtures/test_image.png"), "rb").read()
@@ -148,10 +144,7 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(h, expected_hash)
 
         # Create test file.
-        if six.PY3:
-            image_content = six.text_type("aあä")
-        else:
-            image_content = six.text_type("aあä", encoding="utf-8")
+        image_content = "aあä"
         fqfn = os.path.join(self.media_dir, "test.txt")
         open(fqfn, "wb").write(image_content.encode("utf-8"))
 
@@ -261,7 +254,7 @@ class DatabaseFilesTestCase(TestCase):
         # Verify that by attempting to read the file, we've automatically
         # loaded it into the database.
         self.assertEqual(q.count(), 1)
-        self.assertEqual(six.BytesIO(q.first().content).getvalue(), b"hello there")
+        self.assertEqual(BytesIO(q.first().content).getvalue(), b"hello there")
 
         # Verify that the storage reports that the file exists
         self.assertTrue(o.upload.storage.exists(o.upload.name))
@@ -388,7 +381,7 @@ class DatabaseFilesTestCase(TestCase):
         # Verify that by attempting to read the file, we've automatically
         # loaded it into the database.
         self.assertEqual(q.count(), 1)
-        self.assertEqual(six.BytesIO(q.first().content).getvalue(), b"hello there")
+        self.assertEqual(BytesIO(q.first().content).getvalue(), b"hello there")
 
         # Verify that the storage reports that the file exists
         self.assertTrue(o.upload.storage.exists(o.upload.name))
