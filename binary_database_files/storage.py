@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 """Custom storage backend that stores files in the database to facilitate scaling."""
-from __future__ import unicode_literals, division
 import os
-from io import UnsupportedOperation
-
-import six
+from io import UnsupportedOperation, BytesIO
 
 from django.conf import settings
 from django.core import files
@@ -63,7 +59,7 @@ class DatabaseStorage(FileSystemStorage):
                 size = 0
                 content = b""
         # Normalize the content to a new file object.
-        fh = six.BytesIO(content)
+        fh = BytesIO(content)
         fh.name = name
         fh.mode = mode
         fh.size = size

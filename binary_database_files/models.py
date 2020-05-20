@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals
-from six import python_2_unicode_compatible
-
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -13,7 +9,6 @@ from binary_database_files.utils import write_file, is_fresh
 from binary_database_files.manager import FileManager
 
 
-@python_2_unicode_compatible
 class File(models.Model):
 
     objects = FileManager()

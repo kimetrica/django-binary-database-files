@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals, division
-
 VERSION = (1, 0, 11)
 __version__ = ".".join(map(str, VERSION))
 
