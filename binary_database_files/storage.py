@@ -79,8 +79,7 @@ class DatabaseStorage(FileSystemStorage):
         except UnsupportedOperation:
             pass
         content = content.read()
-        if isinstance(content, str):
-            content = content.encode("utf-8")
+        content = six.ensure_binary(content)
         size = len(content)
         models.File.objects.create(
             content=content, size=size, name=name,
