@@ -63,4 +63,5 @@ setup(
         "pip-requirements-min-django.txt", "pip-requirements.txt"
     ),
     tests_require=get_reqs("pip-requirements-test.txt"),
+    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,<3.9',
 )
