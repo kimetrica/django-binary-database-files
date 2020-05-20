@@ -74,6 +74,8 @@ class DatabaseStorage(FileSystemStorage):
         except UnsupportedOperation:
             pass
         content = content.read()
+        if type(content) == str:
+             content = content.encode('utf-8')
         size = len(content)
         models.File.objects.create(
             content=content,

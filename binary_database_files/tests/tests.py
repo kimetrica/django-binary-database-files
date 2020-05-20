@@ -2,6 +2,7 @@
 import os
 import shutil
 import tempfile
+import base64
 from zipfile import ZipFile
 
 import six
@@ -14,6 +15,7 @@ from django.core.files.temp import NamedTemporaryFile
 from django.core.management import call_command
 from django.db import models
 from django.test import TestCase
+from django.core.files.base import ContentFile
 
 from binary_database_files.models import File
 from binary_database_files.storage import DatabaseStorage
@@ -119,6 +121,16 @@ class DatabaseFilesTestCase(TestCase):
                     uploaded = File.objects.get(name='i/special/' + filename)
                     self.assertEqual(uploaded.size, testzip.getinfo(filename).file_size)
                     self.assertEqual(six.BytesIO(uploaded.content).read(), testfile.read())
+
+    def test_adding_base64_file(self):
+        image_content = open(os.path.join(DIR, 'fixtures/test_image.png'), 'rb').read()
+        base64_content = base64.encodestring(image_content).decode('ascii')
+        q = File.objects.count()
+        t = Thing.objects.create(
+            upload=ContentFile(base64_content, name='test_image.png')
+        )
+        r = File.objects.count()
+        self.assertEqual(r, q+1)
 
     def test_hash(self):
         # Create test file.
