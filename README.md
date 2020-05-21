@@ -40,19 +40,19 @@ should still have a value that makes sense from your base media directory.
 If you are adding the package to an existing Django installation with pre-existing
 files, run:
 
-    python manage.py binary_database_files_load
+    python manage.py database_files_load
 
 Additionally, if you want to export all files in the database back to the file
 system, run:
 
-    python manage.py binary_database_files_dump
+    python manage.py database_files_dump
 
 Note, that when a field referencing a file is cleared, the corresponding file
 in the database and on the file system will not be automatically deleted.
 To delete all files in the database and file system not referenced by any model
 fields, run:
 
-    python manage.py binary_database_files_cleanup
+    python manage.py database_files_cleanup
 
 Settings
 -------
