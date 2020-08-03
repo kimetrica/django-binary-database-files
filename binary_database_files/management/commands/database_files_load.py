@@ -1,27 +1,26 @@
 import os
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import FileField, ImageField
-from django.apps.apps import get_models
+from django.apps import apps
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option(
-            "-m",
-            "--models",
-            dest="models",
-            default="",
-            help="A list of models to search for file fields. Default is all.",
-        ),
-    )
     help = (
         "Loads all files on the filesystem referenced by FileFields "
         "or ImageFields into the database. This should only need to be "
         "done once, when initially migrating a legacy system."
     )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "-m",
+            "--models",
+            dest="models",
+            default="",
+            help="A list of models to search for file fields. Default is all."
+        )
 
     def handle(self, *args, **options):
         show_files = int(options.get("verbosity", 1)) >= 2
@@ -32,8 +31,8 @@ class Command(BaseCommand):
         settings.DEBUG = False
         try:
             broken = 0  # Number of db records referencing missing files.
-            for model in get_models():
-                key = "%s.%s" % (model._meta.app_label, model._meta.module_name)
+            for model in apps.get_models():
+                key = "%s.%s" % (model._meta.app_label, model._meta.model_name)
                 key = key.lower()
                 if all_models and key not in all_models:
                     continue
