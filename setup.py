@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import io
 import os
-from setuptools import setup, find_packages, Command
+from setuptools import setup, find_packages
 
 import binary_database_files
 
