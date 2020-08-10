@@ -109,13 +109,13 @@ To run all [tests](http://tox.readthedocs.org/en/latest/):
 
     export TESTNAME=; tox
 
-To run tests for a specific environment (e.g. Python 3.5 with Django 1.11):
+To run tests for a specific environment (e.g. Python 3.5 with Django 2.2):
 
-    export TESTNAME=; tox -e py35-django111
+    export TESTNAME=; tox -e py35-django22
 
 To run a specific test:
 
-    export TESTNAME=.test_adding_file; tox -e py35-django111
+    export TESTNAME=.test_adding_file; tox -e py35-django22
 
 To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), then increase (and commit) the version number in `binary_database_files/__init__.py` and then run:
 
