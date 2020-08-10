@@ -4,7 +4,6 @@ from binary_database_files.models import File
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list
     help = (
         "Dumps all files in the database referenced by FileFields "
         "or ImageFields onto the filesystem in the directory specified by "
