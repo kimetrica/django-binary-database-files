@@ -19,7 +19,7 @@ class Command(BaseCommand):
             "--models",
             dest="models",
             default="",
-            help="A list of models to search for file fields. Default is all."
+            help="A list of models to search for file fields. Default is all.",
         )
 
     def handle(self, *args, **options):

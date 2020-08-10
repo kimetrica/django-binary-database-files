@@ -9,6 +9,7 @@ from django.views.static import serve as django_serve
 from binary_database_files.models import File
 from binary_database_files import settings as _settings
 
+
 @cache_control(max_age=86400)
 def serve(request, name):
     """

@@ -1,5 +1,3 @@
-from optparse import make_option
-
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
@@ -25,7 +23,7 @@ class Command(BaseCommand):
             help=(
                 "If given, only displays the names of orphaned files "
                 "and does not delete them."
-            )
+            ),
         )
         parser.add_argument(
             "--filenames",
