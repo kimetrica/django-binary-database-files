@@ -109,21 +109,31 @@ class DatabaseStorage(FileSystemStorage):
         full_path = safe_join(self.location, name)
         return full_path[len(root_path) + 1 :]
 
+    def _path(self, instance_name):
+        return safe_join(settings.MEDIA_ROOT, instance_name)
+
     def path(self, name):
         """
         Return a local filesystem path where the file can be retrieved using
         Python's built-in open() function.
 
         File names are normalized to the MEDIA_ROOT.
+
+        If the file has not been saved to disk, a NotImplementedError will
+        be raised.
         """
-        return safe_join(settings.MEDIA_ROOT, self.get_instance_name(name))
+        localpath = self._path(self.get_instance_name(name))
+        if not os.path.exists(localpath):
+            raise NotImplementedError
+        return localpath
 
     def exists(self, name):
         """Return True if a file with the given filename exists in the database. Return False otherwise."""
         name = self.get_instance_name(name)
         if models.File.objects.filter(name=name).exists():
             return True
-        return super(DatabaseStorage, self).exists(name)
+        localpath = self._path(name)
+        return os.path.exists(localpath)
 
     def delete(self, name):
         """Delete the file with filename `name` from the database and filesystem."""
@@ -135,7 +145,9 @@ class DatabaseStorage(FileSystemStorage):
                 os.remove(hash_fn)
         except models.File.DoesNotExist:
             pass
-        return super(DatabaseStorage, self).delete(name)
+        localpath = self._path(name)
+        if os.path.exists(localpath):
+            return super(DatabaseStorage, self).delete(name)
 
     def url(self, name):
         """Return the web-accessible URL for the file with filename `name`.
