@@ -12,6 +12,11 @@ from binary_database_files import utils
 from binary_database_files import settings as _settings
 
 
+class DatabaseFile(files.File):
+    def close(self):
+        pass
+
+
 class DatabaseStorage(FileSystemStorage):
     """Subclass of FileSystemStorage that implements the necessary methods to use the database for files."""
 
@@ -63,7 +68,7 @@ class DatabaseStorage(FileSystemStorage):
         fh.name = name
         fh.mode = mode
         fh.size = size
-        o = files.File(fh)
+        o = DatabaseFile(fh)
         return o
 
     def _save(self, name, content):
