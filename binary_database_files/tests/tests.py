@@ -1,3 +1,4 @@
+import functools
 import os
 import shutil
 import tempfile
@@ -12,7 +13,7 @@ from django.core.files.storage import default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.core.management import call_command
 from django.db import models
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.files.base import ContentFile
 
 from binary_database_files.models import File
@@ -22,6 +23,11 @@ from binary_database_files import utils
 
 DIR = os.path.abspath(os.path.split(__file__)[0])
 
+set_default_file_storage = functools.partial(
+    override_settings,
+    DEFAULT_FILE_STORAGE="binary_database_files.storage.DatabaseStorage",
+)
+
 
 class DatabaseFilesTestCase(TestCase):
     def setUp(self):
@@ -30,6 +36,7 @@ class DatabaseFilesTestCase(TestCase):
             shutil.rmtree(self.media_dir)
         os.makedirs(self.media_dir)
 
+    @set_default_file_storage()
     def test_adding_file(self):
 
         # Create default thing storing reference to file
@@ -104,6 +111,7 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(default_storage.exists("i/special/test.txt"), False)
         self.assertEqual(os.path.isfile(test_fqfn), False)
 
+    @set_default_file_storage()
     def test_adding_extzipfile(self):
         # ZipExtFile advertises seek() but can raise UnsupportedOperation
         with ZipFile(os.path.join(DIR, "fixtures/test.zip")) as testzip:
@@ -117,6 +125,7 @@ class DatabaseFilesTestCase(TestCase):
                     self.assertEqual(uploaded.size, testzip.getinfo(filename).file_size)
                     self.assertEqual(BytesIO(uploaded.content).read(), testfile.read())
 
+    @set_default_file_storage()
     def test_adding_base64_file(self):
         image_content = open(os.path.join(DIR, "fixtures/test_image.png"), "rb").read()
         base64_content = base64.encodestring(image_content).decode("ascii")

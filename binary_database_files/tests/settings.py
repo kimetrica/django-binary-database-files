@@ -15,8 +15,6 @@ INSTALLED_APPS = [
     "binary_database_files.tests",
 ]
 
-DEFAULT_FILE_STORAGE = "binary_database_files.storage.DatabaseStorage"
-
 MEDIA_ROOT = os.path.join(PROJECT_DIR, "media")
 
 USE_TZ = True
