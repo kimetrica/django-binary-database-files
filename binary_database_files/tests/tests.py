@@ -130,7 +130,7 @@ class DatabaseFilesTestCase(TestCase):
     @set_default_file_storage()
     def test_adding_base64_file(self):
         image_content = open(os.path.join(DIR, "fixtures/test_image.png"), "rb").read()
-        base64_content = base64.encodestring(image_content).decode("ascii")
+        base64_content = base64.encodebytes(image_content).decode("ascii")
         q = File.objects.count()
         Thing.objects.create(upload=ContentFile(base64_content, name="test_image.png"))
         r = File.objects.count()
