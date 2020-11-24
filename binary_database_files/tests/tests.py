@@ -1,25 +1,25 @@
+import base64
 import functools
 import os
 import shutil
 import tempfile
-import base64
 from io import BytesIO
 from zipfile import ZipFile
 
 from django.conf import settings
 from django.core import files
 from django.core.files import File as DjangoFile
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.core.management import call_command
 from django.db import models
 from django.test import TestCase, override_settings
-from django.core.files.base import ContentFile
 
+from binary_database_files import utils
 from binary_database_files.models import File
 from binary_database_files.storage import DatabaseStorage
 from binary_database_files.tests.models import Thing
-from binary_database_files import utils
 
 DIR = os.path.abspath(os.path.split(__file__)[0])
 
@@ -83,7 +83,9 @@ class DatabaseFilesTestCase(TestCase):
         data0 = b"1234567890"
         test_file.write(data0)
         test_file.seek(0)
-        t = Thing.objects.create(upload=files.File(test_file),)
+        t = Thing.objects.create(
+            upload=files.File(test_file),
+        )
         self.assertEqual(File.objects.count(), 2)
         t = Thing.objects.get(pk=t.pk)
         self.assertEqual(t.upload.file.size, 10)
