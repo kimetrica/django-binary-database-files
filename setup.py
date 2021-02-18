@@ -59,5 +59,5 @@ setup(
         "pip-requirements.txt",
     ),
     tests_require=get_reqs("pip-requirements-test.txt"),
-    python_requires='>=3.5,<3.10',
+    python_requires=">=3.5,<3.10",
 )
