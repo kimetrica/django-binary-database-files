@@ -16,7 +16,7 @@ Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/dja
 
 Requires:
 
-  * Django 1.11 - 3.0
+  * Django 2.2 - 3.1
 
 Installation
 ------------
