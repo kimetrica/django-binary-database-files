@@ -12,11 +12,15 @@ but there are some valid use cases. If your Django app is behind a caching
 reverse proxy and you need to scale your application servers, it may be
 simpler to store files in the database.
 
+<<<<<<< HEAD
 Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/django-database-files), [rhunwicks](https://github.com/rhunwicks/django-database-files), [chrisspen](https://github.com/chrisspen/django-database-files-3000), [bfirsh](https://github.com/bfirsh/django-database-files) but updated to work with Django 2.2-3.1, Python 3.6+ and to use a binary field for storage.
+=======
+Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/django-database-files), [rhunwicks](https://github.com/rhunwicks/django-database-files), [chrisspen](https://github.com/chrisspen/django-database-files-3000), [bfirsh](https://github.com/bfirsh/django-database-files) but updated to work with Django 2.2-3.2, Python 3.5+ and to use a binary field for storage.
+>>>>>>> 06a2570332185520158b63f39db6c285fec27f54
 
 Requires:
 
-  * Django 2.2 - 3.1
+  * Django 2.2 - 3.2
 
 Installation
 ------------
