@@ -44,6 +44,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"db_table": "binary_database_files_file",},
+            options={
+                "db_table": "binary_database_files_file",
+            },
         ),
     ]

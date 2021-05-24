@@ -84,7 +84,9 @@ class DatabaseStorage(FileSystemStorage):
             content = content.encode("utf-8")
         size = len(content)
         models.File.objects.create(
-            content=content, size=size, name=name,
+            content=content,
+            size=size,
+            name=name,
         )
         # Automatically write the change to the local file system.
         if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:

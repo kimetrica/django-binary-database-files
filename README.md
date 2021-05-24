@@ -12,7 +12,7 @@ but there are some valid use cases. If your Django app is behind a caching
 reverse proxy and you need to scale your application servers, it may be
 simpler to store files in the database.
 
-Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/django-database-files), [rhunwicks](https://github.com/rhunwicks/django-database-files), [chrisspen](https://github.com/chrisspen/django-database-files-3000), [bfirsh](https://github.com/bfirsh/django-database-files) but updated to work with Django 2.2-3.2, Python 3.5+ and to use a binary field for storage.
+Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/django-database-files), [rhunwicks](https://github.com/rhunwicks/django-database-files), [chrisspen](https://github.com/chrisspen/django-database-files-3000), [bfirsh](https://github.com/bfirsh/django-database-files) but updated to work with Django 2.2-3.1, Python 3.6+ and to use a binary field for storage.
 
 Requires:
 
@@ -109,13 +109,13 @@ To run all [tests](http://tox.readthedocs.org/en/latest/):
 
     export TESTNAME=; tox
 
-To run tests for a specific environment (e.g. Python 3.5 with Django 2.2):
+To run tests for a specific environment (e.g. Python 3.6 with Django 2.2):
 
-    export TESTNAME=; tox -e py35-django22
+    export TESTNAME=; tox -e py36-django22
 
 To run a specific test:
 
-    export TESTNAME=.test_adding_file; tox -e py35-django22
+    export TESTNAME=.test_adding_file; tox -e py36-django22
 
 To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), then increase (and commit) the version number in `binary_database_files/__init__.py` and then run:
 
