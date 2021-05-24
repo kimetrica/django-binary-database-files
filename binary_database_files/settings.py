@@ -56,4 +56,4 @@ DB_FILES_DEFAULT_HASH_FN_TEMPLATE = (
     settings.DB_FILES_DEFAULT_HASH_FN_TEMPLATE
 ) = getattr(settings, "DB_FILES_DEFAULT_HASH_FN_TEMPLATE", "%s.hash")
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
