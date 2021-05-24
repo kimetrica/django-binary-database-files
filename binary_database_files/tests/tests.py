@@ -77,14 +77,13 @@ class DatabaseFilesTestCase(TestCase):
         # Load a dynamically created file outside /media.
         test_file = files.temp.NamedTemporaryFile(
             suffix=".txt",
-            # Django>=1.10 no longer allows accessing files outside of MEDIA_ROOT...
-            dir=os.path.join(settings.PROJECT_DIR, "media"),
+            dir=files.temp.gettempdir()
         )
         data0 = b"1234567890"
         test_file.write(data0)
         test_file.seek(0)
         t = Thing.objects.create(
-            upload=files.File(test_file),
+            upload=files.File(test_file, 'temp.txt'),
         )
         self.assertEqual(File.objects.count(), 2)
         t = Thing.objects.get(pk=t.pk)
