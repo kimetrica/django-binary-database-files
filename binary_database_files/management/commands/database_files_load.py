@@ -1,4 +1,5 @@
 import os
+from binary_database_files.storage import DatabaseFile
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -50,6 +51,8 @@ class Command(BaseCommand):
                             if f is None:
                                 continue
                             if not f.name:
+                                continue
+                            if type(f.file) == DatabaseFile:
                                 continue
                             if show_files:
                                 print("\t", f.name)
