@@ -126,7 +126,18 @@ class DatabaseStorage(FileSystemStorage):
         """
         localpath = self._path(self.get_instance_name(name))
         if not os.path.exists(localpath):
-            raise NotImplementedError
+            try:
+                # Load file from database.
+                f = models.File.objects.get_from_name(name)
+                # Automatically write the file to the filesystem
+                # if it's missing and exists in the database.
+                # This happens if we're using multiple web servers connected
+                # to a common database behind a load balancer.
+                # One user might upload a file from one web server, and then
+                # another might access if from another server.
+                utils.write_file(name, f.content)
+            except models.File.DoesNotExist:
+                raise NotImplementedError
         return localpath
 
     def exists(self, name):
