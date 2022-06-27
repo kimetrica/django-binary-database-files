@@ -19,7 +19,7 @@ MEDIA_ROOT = os.path.join(PROJECT_DIR, "media")
 
 USE_TZ = True
 
-SECRET_KEY = "secret"
+SECRET_KEY = "secret"  # noqa: S105
 
 AUTH_USER_MODEL = "auth.User"
 
