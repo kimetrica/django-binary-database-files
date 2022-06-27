@@ -100,7 +100,7 @@ class DatabaseStorage(FileSystemStorage):
         have access to the Storage instance, e.g. so that File.dump_files() can work.
         """
         root_path = os.path.abspath(settings.MEDIA_ROOT)
-        assert self.location.startswith(root_path)
+        assert self.location.startswith(root_path)  # noqa: S101
         relative_location = self.location[len(root_path) + 1 :]
         if (
             relative_location
