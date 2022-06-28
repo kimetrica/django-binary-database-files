@@ -78,12 +78,12 @@ Settings
     In this case, you will also need to updates your `urls.py` to include the view
     that serves the files:
 
-        urlpatterns = patterns('',
+        urlpatterns = [
             # ... the rest of your URLconf goes here ...
 
             # Serve Database Files directly
-            url(r'', include('binary_database_files.urls')),
-        )
+            path(r"", include("binary_database_files.urls")),
+        ]
 
 * `DATABASE_FILES_BASE_URL`
 
