@@ -119,5 +119,7 @@ To run a specific test:
 
 To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), then increase (and commit) the version number in `binary_database_files/__init__.py` and then run:
 
-    python setup.py sdist
-    python setup.py sdist upload
+    python setup.py sdist bdist_wheel
+    twine check dist/*
+    twine upload dist/*
+    
