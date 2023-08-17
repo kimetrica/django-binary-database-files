@@ -51,6 +51,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Framework :: Django :: 2.2",
         "Framework :: Django :: 3.0",
         "Framework :: Django :: 3.1",
@@ -61,5 +62,5 @@ setup(
         "pip-requirements.txt",
     ),
     tests_require=get_reqs("pip-requirements-test.txt"),
-    python_requires=">=3.6,<3.11",
+    python_requires=">=3.6,<3.12",
 )
