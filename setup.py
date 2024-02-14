@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import io
 import os
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 import binary_database_files
 
@@ -46,21 +47,21 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Framework :: Django :: 2.2",
         "Framework :: Django :: 3.0",
         "Framework :: Django :: 3.1",
         "Framework :: Django :: 3.2",
         "Framework :: Django :: 4.0",
+        "Framework :: Django :: 5.0",
     ],
     install_requires=get_reqs(
         "pip-requirements.txt",
     ),
     tests_require=get_reqs("pip-requirements-test.txt"),
-    python_requires=">=3.6,<3.12",
+    python_requires=">=3.6,<3.13",
 )
