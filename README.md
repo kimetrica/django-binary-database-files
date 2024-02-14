@@ -1,7 +1,7 @@
 Django Binary Database Files
 ============================
 
-[![](https://img.shields.io/pypi/v/django-binary-database-files.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://img.shields.io/travis/kimetrica/django-binary-database-files.svg?branch=master)](https://travis-ci.org/kimetrica/django-binary-database-files/) [![](https://pyup.io/repos/github/kimetrica/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/kimetrica/django-binary-database-files)
+[![](https://img.shields.io/pypi/v/django-binary-database-files.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://github.com/Kimetrica/django-binary-database-files/actions/workflows/test.yml/badge.svg)](https://github.com/kimetrica/django-binary-database-files/actions) [![](https://pyup.io/repos/github/kimetrica/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/kimetrica/django-binary-database-files)
 
 This is a storage system for Django that stores uploaded
 files in binary fields in the database. Files can be served from the database
@@ -12,11 +12,11 @@ but there are some valid use cases. If your Django app is behind a caching
 reverse proxy and you need to scale your application servers, it may be
 simpler to store files in the database.
 
-Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/django-database-files), [rhunwicks](https://github.com/rhunwicks/django-database-files), [chrisspen](https://github.com/chrisspen/django-database-files-3000), [bfirsh](https://github.com/bfirsh/django-database-files) but updated to work with Django 2.2-3.1, Python 3.6+ and to use a binary field for storage.
+Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/django-database-files), [rhunwicks](https://github.com/rhunwicks/django-database-files), [chrisspen](https://github.com/chrisspen/django-database-files-3000), [bfirsh](https://github.com/bfirsh/django-database-files) but updated to work with Django 2.2-4.0, Python 3.6+ and to use a binary field for storage.
 
 Requires:
 
-  * Django 2.2 - 3.2
+  * Django 2.2 - 4.0
 
 Installation
 ------------
@@ -78,12 +78,12 @@ Settings
     In this case, you will also need to updates your `urls.py` to include the view
     that serves the files:
 
-        urlpatterns = patterns('',
+        urlpatterns = [
             # ... the rest of your URLconf goes here ...
 
             # Serve Database Files directly
-            url(r'', include('binary_database_files.urls')),
-        )
+            path(r"", include("binary_database_files.urls")),
+        ]
 
 * `DATABASE_FILES_BASE_URL`
 
@@ -95,29 +95,31 @@ Development
 
 Code should be linted with:
 
-    ./pep8.sh
+    ./lint.sh
 
 Tests require the Python development headers to be installed, which you can install on Ubuntu with:
 
-    sudo apt-get install python3-dev python3.6-dev
+    sudo apt-get install python3.12-minimal python3.12-dev
 
 To run unittests across multiple Python versions, install:
 
-    sudo apt-get install python3.6-minimal python3.6-dev python3.7-minimal python3.7-dev
+    sudo apt-get install python3.10-minimal python3.10-dev python3.11-minimal python3.11-dev python3.12-minimal python3.12-dev
 
 To run all [tests](http://tox.readthedocs.org/en/latest/):
 
     export TESTNAME=; tox
 
-To run tests for a specific environment (e.g. Python 3.6 with Django 2.2):
+To run tests for a specific environment (e.g. Python 3.12 with Django 5.0):
 
-    export TESTNAME=; tox -e py36-django22
+    export TESTNAME=; tox -e py312-django50
 
 To run a specific test:
 
-    export TESTNAME=.test_adding_file; tox -e py36-django22
+    export TESTNAME=.test_adding_file; tox -e py312-django50
 
 To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), then increase (and commit) the version number in `binary_database_files/__init__.py` and then run:
 
-    python setup.py sdist
-    python setup.py sdist upload
+    python setup.py sdist bdist_wheel
+    twine check dist/*
+    twine upload dist/*
+    

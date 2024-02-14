@@ -1,12 +1,11 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import BinaryField
 from django.utils import timezone
 
-from django.db.models import BinaryField
-
 from binary_database_files import utils
-from binary_database_files.utils import write_file, is_fresh
 from binary_database_files.manager import FileManager
+from binary_database_files.utils import is_fresh, write_file
 
 
 class File(models.Model):

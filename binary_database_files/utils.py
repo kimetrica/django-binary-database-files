@@ -1,7 +1,8 @@
-import os
 import hashlib
+import os
 
 from django.conf import settings
+
 from binary_database_files import settings as _settings
 
 
@@ -76,12 +77,12 @@ def write_file(name, content, overwrite=False):
     if gname:
         gname = ":" + gname
     if uname:
-        os.system('chown -RL %s%s "%s"' % (uname, gname, fqfn_parts[0]))
+        os.system('chown -RL %s%s "%s"' % (uname, gname, fqfn_parts[0]))  # noqa: S605
 
     # Set permissions.
     perms = getattr(settings, "DATABASE_FILES_PERMS", None)
     if perms:
-        os.system('chmod -R %s "%s"' % (perms, fqfn_parts[0]))
+        os.system('chmod -R %s "%s"' % (perms, fqfn_parts[0]))  # noqa: S605
 
 
 def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_size=128):
