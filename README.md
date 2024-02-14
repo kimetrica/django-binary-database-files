@@ -1,7 +1,7 @@
 Django Binary Database Files
 ============================
 
-[![](https://img.shields.io/pypi/v/django-binary-database-files.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://github.com/Kimetrica/django-binary-database-files/actions/workflows/test.yml/badge.svg)](https://github.com/Kimetrica/django-binary-database-files/actions/workflows/test.yml/badge.svg) [![](https://pyup.io/repos/github/kimetrica/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/kimetrica/django-binary-database-files)
+[![](https://img.shields.io/pypi/v/django-binary-database-files.svg)](https://pypi.python.org/pypi/django-binary-database-files) [![Build Status](https://github.com/Kimetrica/django-binary-database-files/actions/workflows/test.yml/badge.svg)](https://github.com/kimetrica/django-binary-database-files/actions) [![](https://pyup.io/repos/github/kimetrica/django-binary-database-files/shield.svg)](https://pyup.io/repos/github/kimetrica/django-binary-database-files)
 
 This is a storage system for Django that stores uploaded
 files in binary fields in the database. Files can be served from the database
