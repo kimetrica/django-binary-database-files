@@ -1,9 +1,9 @@
 import os
 
+from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import FileField, ImageField
-from django.apps import apps
 
 
 class Command(BaseCommand):
