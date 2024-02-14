@@ -95,7 +95,7 @@ Development
 
 Code should be linted with:
 
-    ./pep8.sh
+    ./lint.sh
 
 Tests require the Python development headers to be installed, which you can install on Ubuntu with:
 

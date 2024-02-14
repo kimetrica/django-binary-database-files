@@ -1,6 +1,6 @@
 """Custom storage backend that stores files in the database to facilitate scaling."""
 import os
-from io import UnsupportedOperation, BytesIO
+from io import BytesIO, UnsupportedOperation
 
 from django.conf import settings
 from django.core import files
@@ -8,8 +8,8 @@ from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
 
 from binary_database_files import models
-from binary_database_files import utils
 from binary_database_files import settings as _settings
+from binary_database_files import utils
 
 
 class DatabaseFile(files.File):

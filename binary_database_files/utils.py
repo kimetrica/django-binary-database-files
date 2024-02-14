@@ -1,7 +1,8 @@
-import os
 import hashlib
+import os
 
 from django.conf import settings
+
 from binary_database_files import settings as _settings
 
 

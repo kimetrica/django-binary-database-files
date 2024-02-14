@@ -6,8 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
 from django.views.static import serve as django_serve
 
-from binary_database_files.models import File
 from binary_database_files import settings as _settings
+from binary_database_files.models import File
 
 
 @cache_control(max_age=86400)
