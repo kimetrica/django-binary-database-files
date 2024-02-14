@@ -322,7 +322,6 @@ class DatabaseFilesTestCase(TestCase):
         self.assertTrue(t1.upload.storage.exists(t1.upload.name))
         os.remove(t1.upload.path)
         self.assertTrue(t1.upload.storage.exists(t1.upload.name))
-        self.assertRaises(NotImplementedError, lambda t1: t1.upload.path, t1)
         data2 = b"22222222"
         open(os.path.join(tmpdir, "dummy.txt"), "wb").write(data2)
         t2 = Location2Thing.objects.create(
@@ -330,7 +329,6 @@ class DatabaseFilesTestCase(TestCase):
         )
         os.remove(t2.upload.path)
         self.assertTrue(t2.upload.storage.exists(t2.upload.name))
-        self.assertRaises(NotImplementedError, lambda t2: t2.upload.path, t2)
         self.assertEqual(File.objects.count(), 2)
         self.assertEqual(Location2Thing.objects.get(pk=t2.pk).upload.file.read(), data2)
         self.assertEqual(Location1Thing.objects.get(pk=t1.pk).upload.file.read(), data1)
@@ -404,6 +402,18 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(content, b"1234567890")
         self.assertEqual(response["content-type"], "text/plain")
         self.assertEqual(response["content-length"], "10")
+
+    def test_path_for_file_from_database(self):
+        call_command("loaddata", "test_files.json")
+        self.assertEqual(File.objects.count(), 1)
+        test_fqfn = os.path.join(DIR, "media", "1.txt")
+        os.remove(test_fqfn)
+        # File only exists in the database at this point
+        self.assertFalse(os.path.exists(test_fqfn))
+        storage = DatabaseStorage()
+        self.assertEqual(storage.path("1.txt"), test_fqfn)
+        # File now exists in the filesystem so that it can be accessed directly
+        self.assertTrue(os.path.exists(test_fqfn))
 
     def test_serve_file_from_database(self):
         call_command("loaddata", "test_files.json")
