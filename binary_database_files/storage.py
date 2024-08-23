@@ -142,9 +142,10 @@ class DatabaseStorage(FileSystemStorage):
         name = self.get_instance_name(name)
         try:
             models.File.objects.get_from_name(name).delete()
-            hash_fn = utils.get_hash_fn(name)
-            if os.path.isfile(hash_fn):
-                os.remove(hash_fn)
+            if _settings.DB_FILES_AUTO_EXPORT_DB_TO_FS:
+                hash_fn = utils.get_hash_fn(name)
+                if os.path.isfile(hash_fn):
+                    os.remove(hash_fn)
         except models.File.DoesNotExist:
             pass
         localpath = self._path(name)
