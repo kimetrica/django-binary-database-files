@@ -1,9 +1,13 @@
 import hashlib
+import logging
 import os
+import shutil
 
 from django.conf import settings
 
 from binary_database_files import settings as _settings
+
+logger = logging.getLogger(__name__)
 
 
 def is_fresh(name, content_hash):
@@ -101,15 +105,21 @@ def write_file(name, content, overwrite=False):
     # Set ownership and permissions.
     uname = getattr(settings, "DATABASE_FILES_USER", None)
     gname = getattr(settings, "DATABASE_FILES_GROUP", None)
-    if gname:
-        gname = ":" + gname
-    if uname:
-        os.system('chown -RL %s%s "%s"' % (uname, gname, fqfn_parts[0]))  # noqa: S605
+    if uname is not None or gname is not None:
+        try:
+            shutil.chown(fqfn, user=uname, group=gname)
+            shutil.chown(hash_fn, user=uname, group=gname)
+        except OSError as e:
+            logger.warning('Could not chown file %s: %s', fqfn, e)
 
     # Set permissions.
     perms = getattr(settings, "DATABASE_FILES_PERMS", settings.FILE_UPLOAD_PERMISSIONS)
     if perms:
-        os.system('chmod -R %s "%s"' % (perms, fqfn_parts[0]))  # noqa: S605
+        try:
+            os.chmod(fqfn, perms)
+            os.chmod(hash_fn, perms)
+        except OSError as e:
+            logger.warning('Could not chmod file %s: %s', fqfn, e)
 
 
 def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_size=128):
