@@ -60,7 +60,9 @@ def write_file(name, content, overwrite=False):
     fqfn_parts = os.path.split(fqfn)
     if not os.path.isdir(fqfn_parts[0]):
         os.makedirs(fqfn_parts[0])
-    open(fqfn, "wb").write(content)
+
+    with open(fqfn, "wb") as fd:
+        fd.write(content)
 
     # Cache hash.
     hash_value = get_file_hash(fqfn)
@@ -69,7 +71,9 @@ def write_file(name, content, overwrite=False):
         value = bytes(hash_value, "utf-8")
     except TypeError:
         value = hash_value
-    open(hash_fn, "wb").write(value)
+
+    with open(hash_fn, "wb") as fd:
+        fd.write(value)
 
     # Set ownership and permissions.
     uname = getattr(settings, "DATABASE_FILES_USER", None)

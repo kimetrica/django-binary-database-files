@@ -54,7 +54,8 @@ class DatabaseStorage(FileSystemStorage):
             fqfn = self.path(name)
             if os.path.isfile(fqfn):
                 # print('Loading file into database.')
-                self._save(name, open(fqfn, mode))
+                with open(fqfn, mode) as fd:
+                    self._save(name, fd)
                 fh = super(DatabaseStorage, self)._open(name, mode)
                 content = fh.read()
                 size = fh.size
