@@ -41,12 +41,36 @@ def get_hash_fn(name):
     fqfn = os.path.join(settings.MEDIA_ROOT, name)
     fqfn = os.path.normpath(fqfn)
     fqfn_parts = os.path.split(fqfn)
-    if not os.path.isdir(fqfn_parts[0]):
-        os.makedirs(fqfn_parts[0])
+
+    create_directory_for_file(fqfn)
+
     hash_fn = os.path.join(
         fqfn_parts[0], _settings.DB_FILES_DEFAULT_HASH_FN_TEMPLATE % fqfn_parts[1]
     )
     return hash_fn
+
+
+def create_directory_for_file(full_path):
+
+    directory = os.path.dirname(full_path)
+    directory_permissions_mode = settings.FILE_UPLOAD_DIRECTORY_PERMISSIONS
+
+    if os.path.isdir(directory):
+        return
+
+    try:
+        if directory_permissions_mode is not None:
+            # Set the umask because os.makedirs() doesn't apply the "mode"
+            # argument to intermediate-level directories.
+            old_umask = os.umask(0o777 & ~directory_permissions_mode)
+            try:
+                os.makedirs(directory, directory_permissions_mode, exist_ok=True)
+            finally:
+                os.umask(old_umask)
+        else:
+            os.makedirs(directory, exist_ok=True)
+    except FileExistsError:
+        raise FileExistsError('%s exists and is not a directory.' % directory)
 
 
 def write_file(name, content, overwrite=False):
@@ -57,9 +81,8 @@ def write_file(name, content, overwrite=False):
     fqfn = os.path.normpath(fqfn)
     if os.path.isfile(fqfn) and not overwrite:
         return
-    fqfn_parts = os.path.split(fqfn)
-    if not os.path.isdir(fqfn_parts[0]):
-        os.makedirs(fqfn_parts[0])
+
+    create_directory_for_file(fqfn)
 
     with open(fqfn, "wb") as fd:
         fd.write(content)
@@ -84,7 +107,7 @@ def write_file(name, content, overwrite=False):
         os.system('chown -RL %s%s "%s"' % (uname, gname, fqfn_parts[0]))  # noqa: S605
 
     # Set permissions.
-    perms = getattr(settings, "DATABASE_FILES_PERMS", None)
+    perms = getattr(settings, "DATABASE_FILES_PERMS", settings.FILE_UPLOAD_PERMISSIONS)
     if perms:
         os.system('chmod -R %s "%s"' % (perms, fqfn_parts[0]))  # noqa: S605
 
