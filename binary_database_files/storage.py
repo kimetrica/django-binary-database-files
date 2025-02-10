@@ -159,7 +159,8 @@ class DatabaseStorage(FileSystemStorage):
         We could also raise an error like the SFTP backend of django-storages is doing, but the relative URL is the
         previous behavior so we fall back to that.
         """
-        return "{}{}".format(self._base_url, settings.DATABASE_FILES_URL_METHOD(name))
+        url_name = name.replace('\\', '/')
+        return "{}{}".format(self._base_url, settings.DATABASE_FILES_URL_METHOD(url_name))
 
     def size(self, name):
         """Return the size of the file with filename `name` in bytes."""
