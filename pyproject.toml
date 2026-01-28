@@ -1,6 +1,6 @@
 [tool.ruff]
 line-length = 119  # Allow longer lines for ruff than black and isort, for comments and docstrings
-target-version = 'py310'
+target-version = 'py314'
 exclude = [
   '.eggs',        # exclude a few common directories in the
   '.git',         # root of the project
@@ -18,16 +18,16 @@ exclude = [
   'dist',
 ]
 
-[tool.ruff.mccabe]
+[lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
 
-[tool.ruff.flake8-quotes]
+[lint.flake8-quotes]
 docstring-quotes = "double"
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py314']
 include = '\.pyi?$'
 exclude = '''
 (

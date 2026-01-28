@@ -14,7 +14,10 @@ class DatabaseFilesAppConfig(AppConfig):
 @register()
 def check_settings(app_configs, **kwargs):
     errors = []
-    if not settings.MEDIA_ROOT and settings.DATABASE_FILES_URL_METHOD_NAME == "URL_METHOD_1":
+    if (
+        not settings.MEDIA_ROOT
+        and settings.DATABASE_FILES_URL_METHOD_NAME == "URL_METHOD_1"
+    ):
         errors.append(
             Error(
                 "MEDIA_ROOT is not defined, yet you are using URL_METHOD_1 which serves media files from the filesystem.",
