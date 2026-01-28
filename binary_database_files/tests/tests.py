@@ -7,13 +7,14 @@ from io import BytesIO
 from zipfile import ZipFile
 
 import django
-from django.conf import settings
+from django.conf import global_settings, settings
 from django.core import files
 from django.core.files import File as DjangoFile
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.core.management import call_command
+from django.core.management.base import SystemCheckError
 from django.db import models
 from django.test import TestCase, override_settings
 
@@ -431,3 +432,19 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(content, b"1234567890")
         self.assertEqual(response["content-type"], "text/plain")
         self.assertEqual(response["content-length"], "10")
+
+    @override_settings(
+            MEDIA_ROOT=global_settings.MEDIA_ROOT,
+            DATABASE_FILES_URL_METHOD_NAME = "URL_METHOD_1", # default
+            DB_FILES_AUTO_EXPORT_DB_TO_FS = True, # default
+    )
+    def test_refuse_unset_media_root(self):
+        # regression test for issue #65 where unset MEDIA_ROOT would result in serving the source code
+
+        message_a = "(binary_database_files.E001) MEDIA_ROOT is not defined, yet you are using URL_METHOD_1 which serves media files from the filesystem"
+        with self.assertRaisesMessage(SystemCheckError, message_a):
+                call_command("check")
+
+        message_b = "(binary_database_files.E002) MEDIA_ROOT is not defined, yet you are using DB_FILES_AUTO_EXPORT_DB_TO_FS which copies media files from the filesystem."
+        with self.assertRaisesMessage(SystemCheckError, message_b):
+                call_command("check")

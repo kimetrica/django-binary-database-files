@@ -27,15 +27,20 @@ def serve(request, name):
 
 def serve_mixed(request, *args, **kwargs):
     """
-    First attempts to serve the file from the filesystem,
+    If document_root or MEDIA_ROOT is set, attempts to serve the file from the filesystem,
     then tries the database.
     """
     name = kwargs.get("name") or kwargs.get("path")
     document_root = kwargs.get("document_root")
     document_root = document_root or settings.MEDIA_ROOT
-    try:
-        # First attempt to serve from filesystem.
-        return django_serve(request, name, document_root)
-    except Http404:
-        # Then try serving from database.
-        return serve(request, name)
+
+    # empty document_root would result in serving the source code
+    if document_root:
+        try:
+            # First attempt to serve from filesystem.
+            return django_serve(request, name, document_root)
+        except Http404:
+            pass
+
+    # Then try serving from database.
+    return serve(request, name)
