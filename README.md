@@ -121,8 +121,12 @@ To run a specific test:
 
     export TESTNAME=.test_adding_file; tox -e py312-django50
 
-To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), then increase (and commit) the version number in `binary_database_files/__init__.py` and then run:
+To build and deploy a versioned package to PyPI, verify [all unittests are passing](https://travis-ci.com/kimetrica/django-binary-database-files/), then increase the version number in `binary_database_files/__init__.py` and then run:
 
+    TAG=x.y.x
+    git add binary_database_files/__init__.py && git commit -m "Increase version to $TAG"
     python setup.py sdist bdist_wheel
     twine check dist/*
     twine upload dist/*
+    git tag $TAG
+    git push --tags
