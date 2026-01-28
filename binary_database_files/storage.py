@@ -1,4 +1,5 @@
 """Custom storage backend that stores files in the database to facilitate scaling."""
+
 import os
 from io import BytesIO, UnsupportedOperation
 

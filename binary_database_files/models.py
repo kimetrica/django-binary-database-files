@@ -82,7 +82,7 @@ class File(models.Model):
             if verbose:
                 print("Checking %i total files..." % (total,))
             i = 0
-            for (file_id, name, content_hash) in q.iterator():
+            for file_id, name, content_hash in q.iterator():
                 i += 1
                 if verbose and not i % 100:
                     print("%i of %i" % (i, total))

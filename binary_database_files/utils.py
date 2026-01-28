@@ -74,7 +74,7 @@ def create_directory_for_file(full_path):
         else:
             os.makedirs(directory, exist_ok=True)
     except FileExistsError:
-        raise FileExistsError('%s exists and is not a directory.' % directory)
+        raise FileExistsError("%s exists and is not a directory." % directory)
 
 
 def write_file(name, content, overwrite=False):
@@ -110,7 +110,7 @@ def write_file(name, content, overwrite=False):
             shutil.chown(fqfn, user=uname, group=gname)
             shutil.chown(hash_fn, user=uname, group=gname)
         except OSError as e:
-            logger.warning('Could not chown file %s: %s', fqfn, e)
+            logger.warning("Could not chown file %s: %s", fqfn, e)
 
     # Set permissions.
     perms = getattr(settings, "DATABASE_FILES_PERMS", settings.FILE_UPLOAD_PERMISSIONS)
@@ -119,7 +119,7 @@ def write_file(name, content, overwrite=False):
             os.chmod(fqfn, perms)
             os.chmod(hash_fn, perms)
         except OSError as e:
-            logger.warning('Could not chmod file %s: %s', fqfn, e)
+            logger.warning("Could not chmod file %s: %s", fqfn, e)
 
 
 def get_file_hash(fin, force_encoding=None, encoding=None, errors=None, chunk_size=128):

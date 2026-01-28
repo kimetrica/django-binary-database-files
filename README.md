@@ -16,7 +16,7 @@ Based upon django-database-files by [Kimetrica](https://github.com/kimetrica/dja
 
 Requires:
 
-  * Django 2.2 - 4.0
+  * Django 4.2+
 
 Installation
 ------------
@@ -103,7 +103,7 @@ Code should be linted with:
 
 Tests require the Python development headers to be installed, which you can install on Ubuntu with:
 
-    sudo apt-get install python3.12-minimal python3.12-dev
+    sudo apt-get install python3.14-minimal python3.14-dev
 
 To run unittests across multiple Python versions, install:
 
@@ -126,4 +126,3 @@ To build and deploy a versioned package to PyPI, verify [all unittests are passi
     python setup.py sdist bdist_wheel
     twine check dist/*
     twine upload dist/*
-    

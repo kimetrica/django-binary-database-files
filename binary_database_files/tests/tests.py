@@ -434,17 +434,17 @@ class DatabaseFilesTestCase(TestCase):
         self.assertEqual(response["content-length"], "10")
 
     @override_settings(
-            MEDIA_ROOT=global_settings.MEDIA_ROOT,
-            DATABASE_FILES_URL_METHOD_NAME = "URL_METHOD_1", # default
-            DB_FILES_AUTO_EXPORT_DB_TO_FS = True, # default
+        MEDIA_ROOT=global_settings.MEDIA_ROOT,
+        DATABASE_FILES_URL_METHOD_NAME="URL_METHOD_1",  # default
+        DB_FILES_AUTO_EXPORT_DB_TO_FS=True,  # default
     )
     def test_refuse_unset_media_root(self):
         # regression test for issue #65 where unset MEDIA_ROOT would result in serving the source code
 
         message_a = "(binary_database_files.E001) MEDIA_ROOT is not defined, yet you are using URL_METHOD_1 which serves media files from the filesystem"
         with self.assertRaisesMessage(SystemCheckError, message_a):
-                call_command("check")
+            call_command("check")
 
         message_b = "(binary_database_files.E002) MEDIA_ROOT is not defined, yet you are using DB_FILES_AUTO_EXPORT_DB_TO_FS which copies media files from the filesystem."
         with self.assertRaisesMessage(SystemCheckError, message_b):
-                call_command("check")
+            call_command("check")
