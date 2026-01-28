@@ -29,9 +29,13 @@ Usage
 -----
 
 In `settings.py`, add `binary_database_files` to your `INSTALLED_APPS` and add
-this line:
+this:
 
-    DEFAULT_FILE_STORAGE = 'binary_database_files.storage.DatabaseStorage'
+    STORAGES = {
+        "default": {
+            "BACKEND": "binary_database_files.storage.DatabaseStorage"
+        }
+    }
 
 Note, the `upload_to` parameter is still used to synchronize the files stored
 in the database with those on the file system, so new and existing fields

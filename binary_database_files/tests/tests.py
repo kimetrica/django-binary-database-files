@@ -6,8 +6,8 @@ import tempfile
 from io import BytesIO
 from zipfile import ZipFile
 
-from django.conf import global_settings
-from django.conf import settings
+import django
+from django.conf import global_settings, settings
 from django.core import files
 from django.core.files import File as DjangoFile
 from django.core.files.base import ContentFile
@@ -25,10 +25,20 @@ from binary_database_files.tests.models import Thing
 
 DIR = os.path.abspath(os.path.split(__file__)[0])
 
-set_default_file_storage = functools.partial(
-    override_settings,
-    DEFAULT_FILE_STORAGE="binary_database_files.storage.DatabaseStorage",
-)
+if django.VERSION <= (4, 2):
+    # DEFAULT_FILE_STORAGE was deprecated in 4.2 (https://https://docs.djangoproject.com/en/dev/releases/4.2/#id1)
+    # remove this when 4.2 is not supported anymore
+    set_default_file_storage = functools.partial(
+        override_settings,
+        DEFAULT_FILE_STORAGE="binary_database_files.storage.DatabaseStorage",
+    )
+else:
+    set_default_file_storage = functools.partial(
+        override_settings,
+        STORAGES={
+            "default": {"BACKEND": "binary_database_files.storage.DatabaseStorage"}
+        },
+    )
 
 
 class DatabaseFilesTestCase(TestCase):
