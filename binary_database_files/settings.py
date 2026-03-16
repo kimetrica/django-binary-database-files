@@ -1,4 +1,4 @@
-import os
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.urls import reverse
@@ -14,7 +14,7 @@ def URL_METHOD_1(name):
     """
     Construct file URL based on media URL.
     """
-    return os.path.join(settings.MEDIA_URL, name)
+    return urljoin(settings.MEDIA_URL, name)
 
 
 def URL_METHOD_2(name):
